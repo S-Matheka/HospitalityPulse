@@ -75,12 +75,18 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Get the first part of email (before . or @)
+      const firstName = email.split(/[.@]/)[0];
+      // Capitalize first letter
+      const name = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+      
       const newUser = {
         email,
-        name: 'Admin User',
+        name,
         role: 'admin',
         isAuthenticated: true,
-        firstName: 'Admin',
+        firstName: name,
         lastLoginAt: Date.now()
       };
       setUser(newUser);
