@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import CustomDropdown from './CustomDropdown';
+import { StarIcon, ArrowUpIcon, ArrowDownIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
 
 interface Platform {
-  name: 'Google' | 'Yelp' | 'Facebook';
+  name: 'Google' | 'TripAdvisor' | 'Booking.com' | 'Expedia' | 'Hotels.com';
   rating: number;
   totalReviews: number;
   recentPositive: number;
   recentNegative: number;
   icon: string;
   color: string;
+  change?: number;
 }
 
 interface TrendingPhrase {
@@ -22,41 +24,61 @@ const ReputationOverview: React.FC = () => {
 
   const platforms: Platform[] = [
     {
-      name: 'Google',
-      rating: 4.3,
-      totalReviews: 528,
-      recentPositive: 8,
+      name: 'TripAdvisor',
+      rating: 4.5,
+      totalReviews: 856,
+      recentPositive: 12,
       recentNegative: 2,
+      change: 0.2,
+      icon: 'M19.465 10.04a4.904 4.904 0 0 0-7.442.693a4.904 4.904 0 0 0-7.442-.693A4.912 4.912 0 0 0 4.74 16.85a31.862 31.862 0 0 0 7.283 4.908a31.862 31.862 0 0 0 7.283-4.908a4.912 4.912 0 0 0 .159-6.81z',
+      color: 'text-green-500',
+    },
+    {
+      name: 'Google',
+      rating: 4.4,
+      totalReviews: 723,
+      recentPositive: 9,
+      recentNegative: 1,
+      change: 0.3,
       icon: 'M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z',
       color: 'text-blue-500',
     },
     {
-      name: 'Yelp',
-      rating: 4.1,
-      totalReviews: 342,
-      recentPositive: 6,
-      recentNegative: 3,
-      icon: 'M20.16 12.594l-4.995 1.433c-.96.275-1.797-.593-1.522-1.553l1.433-4.995c.275-.96 1.595-1.025 1.87-.065l2.197 7.645c.275.96-.023 1.26-.983 1.535zM8.84 19.406l4.995-1.433c.96-.275 1.797.593 1.522 1.553l-1.433 4.995c-.275.96-1.595 1.025-1.87.065l-2.197-7.645c-.275-.96.023-1.26.983-1.535z',
-      color: 'text-red-500',
+      name: 'Booking.com',
+      rating: 4.3,
+      totalReviews: 645,
+      recentPositive: 8,
+      recentNegative: 2,
+      icon: 'M21.04 3H2.96A2.96 2.96 0 0 0 0 5.96v12.08A2.96 2.96 0 0 0 2.96 21h18.08A2.96 2.96 0 0 0 24 18.04V5.96A2.96 2.96 0 0 0 21.04 3zM12 17.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z',
+      color: 'text-blue-600',
     },
     {
-      name: 'Facebook',
+      name: 'Expedia',
       rating: 4.2,
-      totalReviews: 245,
-      recentPositive: 5,
+      totalReviews: 512,
+      recentPositive: 7,
+      recentNegative: 2,
+      icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5',
+      color: 'text-yellow-500',
+    },
+    {
+      name: 'Hotels.com',
+      rating: 4.3,
+      totalReviews: 489,
+      recentPositive: 6,
       recentNegative: 1,
-      icon: 'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z',
-      color: 'text-blue-600',
+      icon: 'M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10z',
+      color: 'text-red-500',
     },
   ];
 
   const trendingPhrases: TrendingPhrase[] = [
-    { text: '#GreatService', count: 45, sentiment: 'positive' },
-    { text: '#QuickAppointment', count: 32, sentiment: 'positive' },
-    { text: '#LongWait', count: 28, sentiment: 'negative' },
-    { text: '#FriendlyStaff', count: 25, sentiment: 'positive' },
-    { text: '#Recommended', count: 22, sentiment: 'positive' },
-    { text: '#ParkingIssues', count: 18, sentiment: 'negative' },
+    { text: '#ExcellentService', count: 58, sentiment: 'positive' },
+    { text: '#CleanRooms', count: 45, sentiment: 'positive' },
+    { text: '#GreatLocation', count: 42, sentiment: 'positive' },
+    { text: '#SlowCheckIn', count: 28, sentiment: 'negative' },
+    { text: '#AmazingBreakfast', count: 35, sentiment: 'positive' },
+    { text: '#WiFiIssues', count: 22, sentiment: 'negative' },
   ];
 
   const getSentimentColor = (sentiment: string) => {
@@ -96,12 +118,26 @@ const ReputationOverview: React.FC = () => {
     }))
   ];
 
+  const renderRatingBar = (rating: number) => {
+    return (
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+        <div 
+          className="bg-primary-500 h-1.5 rounded-full transition-all duration-300" 
+          style={{ width: `${(rating / 5) * 100}%` }}
+        />
+      </div>
+    );
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Reputation Overview
-        </h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            Reputation Overview
+          </h2>
+          <InformationCircleIcon className="h-6 w-6 text-gray-400 cursor-help" title="Overall reputation across all platforms" />
+        </div>
         <CustomDropdown
           options={platformOptions}
           value={selectedPlatform}
@@ -116,17 +152,27 @@ const ReputationOverview: React.FC = () => {
             <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
               Overall Rating
             </span>
-            <div className="flex items-center">
-              <span className="text-2xl font-bold text-gray-900 dark:text-white mr-1">
-                {stats.rating}
-              </span>
-              <svg
-                className="w-5 h-5 text-yellow-400"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center">
+                <span className="text-3xl font-bold text-gray-900 dark:text-white mr-1">
+                  {stats.rating}
+                </span>
+                <StarIcon className="w-6 h-6 text-yellow-400" />
+              </div>
+              {selectedPlatform === 'all' && (
+                <div className={`flex items-center px-2 py-1 rounded-full text-sm ${
+                  platforms.reduce((acc, curr) => acc + (curr.change || 0), 0) > 0 
+                    ? 'text-green-500 bg-green-50 dark:bg-green-900/20' 
+                    : 'text-red-500 bg-red-50 dark:bg-red-900/20'
+                }`}>
+                  {platforms.reduce((acc, curr) => acc + (curr.change || 0), 0) > 0 ? (
+                    <ArrowUpIcon className="h-4 w-4 mr-1" />
+                  ) : (
+                    <ArrowDownIcon className="h-4 w-4 mr-1" />
+                  )}
+                  <span>vs last month</span>
+                </div>
+              )}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -140,12 +186,12 @@ const ReputationOverview: React.FC = () => {
               <span className="text-sm text-gray-500 dark:text-gray-400">Recent</span>
               <div className="flex flex-col space-y-1">
                 <span className="text-lg font-semibold text-success-500">
-                  {stats.recentPositive} 
-                  <span className="text-sm font-normal">(4+ Stars)</span>
+                  +{stats.recentPositive} 
+                  <span className="text-sm font-normal ml-1">(4+ Stars)</span>
                 </span>
                 <span className="text-lg font-semibold text-danger-500">
-                  {stats.recentNegative} 
-                  <span className="text-sm font-normal">(3 or Fewer Stars)</span>
+                  -{stats.recentNegative} 
+                  <span className="text-sm font-normal ml-1">(3 or Fewer)</span>
                 </span>
               </div>
             </div>
@@ -156,28 +202,43 @@ const ReputationOverview: React.FC = () => {
           <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
             Platform Breakdown
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {platforms.map((platform) => (
-              <div key={platform.name} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <svg
-                    className={`w-4 h-4 ${platform.color} mr-2`}
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d={platform.icon} />
-                  </svg>
-                  <span className="text-sm text-gray-600 dark:text-gray-300">
-                    {platform.name}
-                  </span>
+              <div key={platform.name} className="group">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center">
+                    <svg
+                      className={`w-4 h-4 ${platform.color} mr-2`}
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d={platform.icon} />
+                    </svg>
+                    <span className="text-sm text-gray-600 dark:text-gray-300">
+                      {platform.name}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      {platform.rating}★
+                    </span>
+                    {platform.change && (
+                      <span className={`flex items-center text-xs ${
+                        platform.change >= 0 ? 'text-green-500' : 'text-red-500'
+                      }`}>
+                        {platform.change >= 0 ? (
+                          <ArrowUpIcon className="h-3 w-3 mr-1" />
+                        ) : (
+                          <ArrowDownIcon className="h-3 w-3 mr-1" />
+                        )}
+                        {Math.abs(platform.change)}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {platform.rating}★
-                  </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    ({platform.totalReviews})
-                  </span>
+                {renderRatingBar(platform.rating)}
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
+                  {platform.totalReviews} reviews
                 </div>
               </div>
             ))}

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 interface SentimentData {
   phrase: string;
   reviewPercentage: number;
-  callPercentage: number;
+  socialPercentage: number;
   sentiment: 'positive' | 'negative' | 'neutral';
   frequency: number;
 }
@@ -13,39 +13,39 @@ const SentimentCorrelation: React.FC = () => {
 
   const sentimentData: SentimentData[] = [
     {
-      phrase: 'long wait time',
-      reviewPercentage: 70,
-      callPercentage: 65,
+      phrase: 'slow wifi',
+      reviewPercentage: 45,
+      socialPercentage: 40,
       sentiment: 'negative',
       frequency: 142,
     },
     {
-      phrase: 'kind nurse',
-      reviewPercentage: 45,
-      callPercentage: 38,
+      phrase: 'friendly staff',
+      reviewPercentage: 55,
+      socialPercentage: 48,
       sentiment: 'positive',
+      frequency: 156,
+    },
+    {
+      phrase: 'poor breakfast',
+      reviewPercentage: 30,
+      socialPercentage: 35,
+      sentiment: 'negative',
       frequency: 89,
     },
     {
-      phrase: 'unprofessional staff',
-      reviewPercentage: 25,
-      callPercentage: 30,
-      sentiment: 'negative',
-      frequency: 67,
-    },
-    {
-      phrase: 'great experience',
-      reviewPercentage: 35,
-      callPercentage: 28,
+      phrase: 'comfortable beds',
+      reviewPercentage: 42,
+      socialPercentage: 38,
       sentiment: 'positive',
-      frequency: 82,
+      frequency: 112,
     },
     {
-      phrase: 'billing issues',
-      reviewPercentage: 40,
-      callPercentage: 45,
+      phrase: 'check-in delays',
+      reviewPercentage: 25,
+      socialPercentage: 28,
       sentiment: 'negative',
-      frequency: 98,
+      frequency: 76,
     },
   ];
 
@@ -62,8 +62,8 @@ const SentimentCorrelation: React.FC = () => {
     }
   };
 
-  const getCorrelationStrength = (review: number, call: number) => {
-    const difference = Math.abs(review - call);
+  const getCorrelationStrength = (review: number, social: number) => {
+    const difference = Math.abs(review - social);
     if (difference <= 5) return 'Very Strong';
     if (difference <= 10) return 'Strong';
     if (difference <= 15) return 'Moderate';
@@ -73,7 +73,7 @@ const SentimentCorrelation: React.FC = () => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
       <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-        Sentiment Correlation Analysis
+        Guest Feedback Analysis
       </h2>
 
       <div className="space-y-6">
@@ -108,7 +108,7 @@ const SentimentCorrelation: React.FC = () => {
                 <div key={item.phrase} className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-                      Correlation Analysis: "{item.phrase}"
+                      Feedback Analysis: "{item.phrase}"
                     </h3>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -123,7 +123,7 @@ const SentimentCorrelation: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                          Reviews Mention Rate
+                          Review Platform Mentions
                         </span>
                         <span className="text-sm font-medium text-gray-900 dark:text-white">
                           {item.reviewPercentage}%
@@ -140,16 +140,16 @@ const SentimentCorrelation: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                          Calls Mention Rate
+                          Social Media Mentions
                         </span>
                         <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          {item.callPercentage}%
+                          {item.socialPercentage}%
                         </span>
                       </div>
                       <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
                         <div
                           className="h-2 bg-primary-500 rounded-full"
-                          style={{ width: `${item.callPercentage}%` }}
+                          style={{ width: `${item.socialPercentage}%` }}
                         />
                       </div>
                     </div>
@@ -158,18 +158,18 @@ const SentimentCorrelation: React.FC = () => {
                   <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        Correlation Strength
+                        Cross-Platform Correlation
                       </span>
                       <span className="text-sm font-medium text-primary-600 dark:text-primary-400">
-                        {getCorrelationStrength(item.reviewPercentage, item.callPercentage)}
+                        {getCorrelationStrength(item.reviewPercentage, item.socialPercentage)}
                       </span>
                     </div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      This phrase appears in {item.reviewPercentage}% of reviews and {item.callPercentage}% of
-                      calls, indicating a {getCorrelationStrength(
+                      This phrase appears in {item.reviewPercentage}% of review platforms and {item.socialPercentage}% of
+                      social media posts, indicating a {getCorrelationStrength(
                         item.reviewPercentage,
-                        item.callPercentage
-                      ).toLowerCase()} correlation between customer reviews and call center interactions.
+                        item.socialPercentage
+                      ).toLowerCase()} correlation between guest reviews and social media sentiment.
                     </p>
                   </div>
                 </div>
@@ -179,7 +179,7 @@ const SentimentCorrelation: React.FC = () => {
 
         {!activePhrase && (
           <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-            Click on any phrase to see detailed correlation analysis
+            Click on any phrase to see detailed feedback analysis
           </div>
         )}
       </div>

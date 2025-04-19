@@ -1,79 +1,66 @@
 import React from 'react';
-import { ExclamationCircleIcon, ShieldExclamationIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
+import {
+  ExclamationTriangleIcon,
+  ClockIcon,
+  ShieldExclamationIcon,
+  DocumentCheckIcon
+} from '@heroicons/react/24/outline';
 
 interface ComplianceAlert {
   id: string;
-  type: 'procedure' | 'documentation' | 'hipaa';
   title: string;
   description: string;
-  timestamp: string;
   severity: 'high' | 'medium' | 'low';
-  auditLink: string;
+  timeAgo: string;
+  icon: React.ComponentType<any>;
 }
 
 const ComplianceAlerts: React.FC = () => {
   const alerts: ComplianceAlert[] = [
     {
       id: '1',
-      type: 'procedure',
-      title: 'Triage Protocol Incomplete',
-      description: 'Missing 2 of 5 required questions in patient assessment',
-      timestamp: '15 minutes ago',
+      title: 'Fire Safety Inspection Due',
+      description: 'Annual fire safety inspection deadline approaching for North Tower',
       severity: 'high',
-      auditLink: '/audit/triage-protocol'
+      timeAgo: '2 days ago',
+      icon: ExclamationTriangleIcon
     },
     {
       id: '2',
-      type: 'documentation',
-      title: 'Patient Info Collection',
-      description: 'Insurance ID missing from 3 recent patient records',
-      timestamp: '45 minutes ago',
+      title: 'Food Safety Certification',
+      description: '3 kitchen staff members have expiring certifications',
       severity: 'medium',
-      auditLink: '/audit/patient-records'
+      timeAgo: '45 minutes ago',
+      icon: ClockIcon
     },
     {
       id: '3',
-      type: 'hipaa',
-      title: 'HIPAA Compliance Risk',
-      description: 'Patient data sent via email',
-      timestamp: '1 hour ago',
-      severity: 'high',
-      auditLink: '/audit/hipaa-violation'
+      title: 'Security Protocol Review',
+      description: 'Quarterly security procedures audit pending',
+      severity: 'medium',
+      timeAgo: '1 hour ago',
+      icon: ShieldExclamationIcon
     },
     {
       id: '4',
-      type: 'procedure',
-      title: 'Medication Verification',
-      description: 'Double verification step skipped for controlled substances',
-      timestamp: '2 hours ago',
+      title: 'Health & Safety Training',
+      description: 'Required staff training completion rate below 85%',
       severity: 'high',
-      auditLink: '/audit/medication-protocol'
+      timeAgo: '2 hours ago',
+      icon: DocumentCheckIcon
     }
   ];
-
-  const getAlertIcon = (type: string) => {
-    switch (type) {
-      case 'procedure':
-        return <ClipboardDocumentCheckIcon className="h-5 w-5 text-yellow-400" />;
-      case 'hipaa':
-        return <ShieldExclamationIcon className="h-5 w-5 text-red-500" />;
-      case 'documentation':
-        return <ExclamationCircleIcon className="h-5 w-5 text-orange-400" />;
-      default:
-        return null;
-    }
-  };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'high':
-        return 'border-l-4 border-red-500';
+        return 'text-red-800 bg-red-100 dark:bg-red-900/20 dark:text-red-400';
       case 'medium':
-        return 'border-l-4 border-yellow-500';
+        return 'text-yellow-800 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400';
       case 'low':
-        return 'border-l-4 border-blue-500';
+        return 'text-green-800 bg-green-100 dark:bg-green-900/20 dark:text-green-400';
       default:
-        return '';
+        return 'text-gray-800 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400';
     }
   };
 
@@ -84,30 +71,32 @@ const ComplianceAlerts: React.FC = () => {
       </h2>
 
       <div className="space-y-4">
-        {alerts.map((alert) => (
-          <a
-            key={alert.id}
-            href={alert.auditLink}
-            className={`block bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${getSeverityColor(alert.severity)}`}
-          >
-            <div className="flex items-start space-x-3">
-              {getAlertIcon(alert.type)}
+        {alerts.map((alert) => {
+          const Icon = alert.icon;
+          return (
+            <div
+              key={alert.id}
+              className="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+            >
+              <div className={`p-2 rounded-full ${getSeverityColor(alert.severity)}`}>
+                <Icon className="h-5 w-5" />
+              </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-gray-900 dark:text-white font-medium">
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                     {alert.title}
                   </h3>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {alert.timestamp}
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {alert.timeAgo}
                   </span>
                 </div>
-                <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm">
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                   {alert.description}
                 </p>
               </div>
             </div>
-          </a>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

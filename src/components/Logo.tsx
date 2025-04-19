@@ -6,11 +6,11 @@ const Logo: React.FC = () => {
   const { theme } = useTheme();
   
   return (
-    <Link to="/" className="flex items-center justify-start px-4 py-5">
+    <Link to="/" className="flex items-center justify-start px-4 py-3">
       <img
         src={theme === 'dark' ? '/assets/logos/dark/logo.svg' : '/assets/logos/light/logo.svg'}
         alt="Creo Solutions"
-        className="h-8 w-auto object-contain"
+        className="h-10 w-auto object-contain"
       />
     </Link>
   );

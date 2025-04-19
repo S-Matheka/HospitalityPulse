@@ -1,5 +1,11 @@
 import React from 'react';
-import { ChartBarIcon, ClockIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { 
+  ClockIcon, 
+  UserGroupIcon, 
+  ExclamationTriangleIcon,
+  BuildingOfficeIcon,
+  BellIcon
+} from '@heroicons/react/24/outline';
 
 interface RiskPattern {
   id: string;
@@ -14,26 +20,42 @@ const patterns: RiskPattern[] = [
   {
     id: '1',
     icon: ClockIcon,
-    title: 'Patient Wait Times',
-    metric: '+30% longer than last week',
+    title: 'Check-in Wait Times',
+    metric: '15+ minutes during peak hours',
     severity: 'high',
-    location: 'Midtown Clinic'
+    location: 'Main Lobby'
   },
   {
     id: '2',
-    icon: ChartBarIcon,
-    title: 'Staff Coverage',
-    metric: '2 understaffed shifts reported',
-    severity: 'medium',
-    location: 'Night Shift'
+    icon: UserGroupIcon,
+    title: 'Housekeeping Coverage',
+    metric: '30% staff shortage today',
+    severity: 'high',
+    location: 'All Floors'
   },
   {
     id: '3',
-    icon: DocumentTextIcon,
-    title: 'Prescription Delays',
-    metric: '3x more reports this week',
+    icon: BellIcon,
+    title: 'Room Service Delays',
+    metric: 'Avg. 45min response time',
+    severity: 'medium',
+    location: 'Room Service'
+  },
+  {
+    id: '4',
+    icon: BuildingOfficeIcon,
+    title: 'Occupancy Risk',
+    metric: '85% of rooms blocked, 60% confirmed',
     severity: 'high',
-    location: 'All Locations'
+    location: 'All Rooms'
+  },
+  {
+    id: '5',
+    icon: ExclamationTriangleIcon,
+    title: 'Maintenance Requests',
+    metric: '8 pending urgent repairs',
+    severity: 'medium',
+    location: 'Multiple Rooms'
   }
 ];
 
@@ -53,15 +75,20 @@ const getSeverityColor = (severity: string) => {
 const EscalatingRiskPatterns: React.FC = () => {
   return (
     <div className="bg-gray-900 rounded-lg p-6">
-      <h2 className="text-2xl font-semibold text-white mb-6">
-        Escalating Risk Patterns
-      </h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-semibold text-white">
+          Escalating Risk Patterns
+        </h2>
+        <span className="text-sm text-gray-400">
+          Last updated: {new Date().toLocaleTimeString()}
+        </span>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {patterns.map((pattern) => (
           <div
             key={pattern.id}
-            className="bg-gray-800 rounded-lg p-4 flex flex-col"
+            className="bg-gray-800 rounded-lg p-4 flex flex-col hover:bg-gray-750 transition-colors duration-200"
           >
             <div className="flex items-start justify-between mb-3">
               <div className={`p-2 rounded-lg ${getSeverityColor(pattern.severity)}`}>
@@ -90,4 +117,4 @@ const EscalatingRiskPatterns: React.FC = () => {
   );
 };
 
-export default EscalatingRiskPatterns; 
+export default EscalatingRiskPatterns;

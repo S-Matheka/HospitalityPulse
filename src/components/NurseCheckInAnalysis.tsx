@@ -26,14 +26,14 @@ ChartJS.register(
   Filler
 );
 
-interface NurseCheckInAnalysisProps {
+interface CheckInAnalysisProps {
   checkInData: Array<{ date: string; avgTime: number }>;
-  shiftCoverage: Array<{ shift: string; current: number; recommended: number }>;
+  staffCoverage: Array<{ shift: string; current: number; recommended: number }>;
 }
 
-const NurseCheckInAnalysis: React.FC<NurseCheckInAnalysisProps> = ({
+const CheckInAnalysis: React.FC<CheckInAnalysisProps> = ({
   checkInData,
-  shiftCoverage
+  staffCoverage
 }) => {
   // Line chart data for check-in times
   const lineChartData = {
@@ -73,18 +73,18 @@ const NurseCheckInAnalysis: React.FC<NurseCheckInAnalysisProps> = ({
     }
   };
 
-  // Bar chart data for shift coverage
+  // Bar chart data for staff coverage
   const barChartData = {
-    labels: shiftCoverage.map(s => s.shift),
+    labels: staffCoverage.map(s => s.shift),
     datasets: [
       {
-        label: 'Current Nurses',
-        data: shiftCoverage.map(s => s.current),
+        label: 'Current Front Desk Staff',
+        data: staffCoverage.map(s => s.current),
         backgroundColor: 'rgb(59, 130, 246)', // blue-500
       },
       {
-        label: 'Required Nurses',
-        data: shiftCoverage.map(s => s.recommended),
+        label: 'Required Staff',
+        data: staffCoverage.map(s => s.recommended),
         backgroundColor: 'rgb(239, 68, 68)', // red-500
       }
     ]
@@ -107,7 +107,7 @@ const NurseCheckInAnalysis: React.FC<NurseCheckInAnalysisProps> = ({
         beginAtZero: true,
         title: {
           display: true,
-          text: 'Number of Nurses'
+          text: 'Number of Staff'
         }
       }
     }
@@ -117,10 +117,10 @@ const NurseCheckInAnalysis: React.FC<NurseCheckInAnalysisProps> = ({
     <div className="space-y-6">
       <div className="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg">
         <h3 className="text-lg font-medium text-red-800 dark:text-red-200 mb-2">
-          Nurse Check-in Times Analysis
+          Check-in Process Analysis
         </h3>
         <p className="text-red-700 dark:text-red-300">
-          Average check-in times have increased by 25% this week. Review shift allocation below.
+          Average check-in times have increased by 15% this week at Downtown location. System delays reported during peak hours.
         </p>
       </div>
 
@@ -136,7 +136,7 @@ const NurseCheckInAnalysis: React.FC<NurseCheckInAnalysisProps> = ({
 
         <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
           <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
-            Nurse Shift Coverage
+            Front Desk Staff Coverage
           </h4>
           <div className="h-48">
             <Bar data={barChartData} options={barChartOptions} />
@@ -146,18 +146,20 @@ const NurseCheckInAnalysis: React.FC<NurseCheckInAnalysisProps> = ({
 
       <div className="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg">
         <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-2">
-          Suggested Action
+          Suggested Actions
         </h4>
         <p className="text-yellow-700 dark:text-yellow-300">
-          Consider reallocating 2 nurses from morning shift to afternoon shift at Downtown Health Clinic
+          1. Add 2 staff members during peak check-in hours (2-6 PM)
+          <br />
+          2. Implement express check-in for loyalty program members
         </p>
       </div>
 
       <button className="btn-primary">
-        Update Shift Allocation
+        Update Staff Schedule
       </button>
     </div>
   );
 };
 
-export default NurseCheckInAnalysis; 
+export default CheckInAnalysis; 

@@ -39,18 +39,18 @@ const Header: React.FC<HeaderProps> = ({
 
   const locations: Option[] = [
     { id: 'all', value: 'All Locations', label: 'All Locations' },
-    { id: 'midtown', value: 'Midtown Clinic - Atlanta, GA', label: 'Midtown Clinic - Atlanta, GA' },
-    { id: 'downtown', value: 'Downtown Clinic - Atlanta, GA', label: 'Downtown Clinic - Atlanta, GA' },
-    { id: 'northside', value: 'Northside Clinic - Atlanta, GA', label: 'Northside Clinic - Atlanta, GA' },
-    { id: 'southside', value: 'Southside Clinic - Atlanta, GA', label: 'Southside Clinic - Atlanta, GA' }
+    { id: 'midtown', value: 'Sunset Plaza Hotel - Midtown', label: 'Sunset Plaza Hotel - Midtown' },
+    { id: 'downtown', value: 'Sunset Plaza Hotel - Downtown', label: 'Sunset Plaza Hotel - Downtown' },
+    { id: 'northside', value: 'Sunset Plaza Hotel - Northside', label: 'Sunset Plaza Hotel - Northside' },
+    { id: 'southside', value: 'Sunset Plaza Hotel - Southside', label: 'Sunset Plaza Hotel - Southside' }
   ];
 
   useEffect(() => {
-    // Set default location to All Locations
+    // Set default location to All Locations if none selected
     if (!selectedLocation) {
       onLocationChange('All Locations');
     }
-  }, []);
+  }, [selectedLocation, onLocationChange]);
 
   const formatDateRange = (range: { start: Date; end: Date }) => {
     const formatDate = (date: Date) => {
@@ -70,7 +70,7 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-16 w-full items-center border-b border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
+      <header className="fixed top-0 left-0 right-0 z-50 flex h-16 w-full items-center border-b border-gray-200 bg-white/80 backdrop-blur-sm px-4 dark:border-gray-700 dark:bg-gray-800/80">
         {/* Logo */}
         <div className="flex-shrink-0 w-64 -ml-4">
           <Logo />
@@ -147,6 +147,9 @@ const Header: React.FC<HeaderProps> = ({
           </button>
         </div>
       </header>
+
+      {/* Add a spacer div after the header to prevent content from jumping under it */}
+      <div className="h-16 w-full" />
 
       <PulseDrawer
         isOpen={showPulseDrawer}

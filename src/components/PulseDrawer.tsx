@@ -31,32 +31,48 @@ const MessageAvatar = () => (
 );
 
 const mockPulseResponse = (query: string): string => {
-  if (query.toLowerCase().includes('wait time')) {
-    return 'Based on current data, the average wait time is 18 minutes. This is 12% higher than last week. The longest waits are typically during Monday mornings and Wednesday afternoons.';
-  } else if (query.toLowerCase().includes('patient satisfaction')) {
-    return 'Patient satisfaction scores are currently at 4.2/5, with recent improvements in appointment scheduling satisfaction. However, we\'ve noticed a slight decline in satisfaction with wait times.';
-  } else if (query.toLowerCase().includes('staffing')) {
-    return 'Current staffing levels are at 92% of optimal capacity. We have 3 open positions in nursing and 2 in front desk support. Peak hour coverage has improved by 15% since last month.';
-  } else if (query.toLowerCase().includes('compare performance')) {
-    return 'I can help you compare clinic performance. Would you like to compare specific metrics like patient satisfaction, wait times, or staff utilization between clinics?';
-  } else if (query.toLowerCase().includes('complaining')) {
-    return 'Based on recent feedback, the top patient complaints are:\n1. Long wait times (35%)\n2. Parking availability (25%)\n3. Front desk communication (20%)\n4. Appointment scheduling (15%)\n5. Other (5%)';
-  } else if (query.toLowerCase().includes('understaffing')) {
-    return 'I\'ve analyzed staffing patterns and found potential understaffing issues in:\n1. Midtown Clinic - Peak hours (2-4 PM)\n2. Downtown Clinic - Monday mornings\n3. Buckhead Clinic - Wednesday afternoons\n\nWould you like detailed staffing recommendations?';
+  if (query.toLowerCase().includes('check-in time')) {
+    return 'Based on current data, the average check-in time is 12 minutes. Downtown location is experiencing longer times (15 minutes) due to system delays, while Midtown is performing better at 8 minutes. We\'ve noticed peak delays during weekend check-ins.';
+  } else if (query.toLowerCase().includes('guest satisfaction')) {
+    return 'Overall guest satisfaction is at 4.3/5, with recent improvements in room service ratings (+8%). However, we\'ve noticed concerns about WiFi connectivity (Downtown) and breakfast service quality (Northside). TripAdvisor ratings have improved by 0.4 points this month.';
   } else if (query.toLowerCase().includes('getting worse')) {
-    return 'Based on the past month\'s data, here are the top areas showing negative trends:\n\n' +
-           '1. Pharmacy Issues:\n' +
-           '   • Prescription delays (+20% increase)\n' +
-           '   • Medication errors (+5% increase)\n\n' +
-           '2. Patient Experience:\n' +
-           '   • Long hold times (+15% increase)\n' +
-           '   • Front desk service quality (+8% increase)\n\n' +
-           '3. Communication:\n' +
-           '   • Appointment delays (+12% increase)\n' +
-           '   • Follow-up communication (+10% increase)\n\n' +
-           'Would you like me to provide more detailed analysis of any of these areas?';
+    return 'Based on the past month\'s data, here are the areas showing negative trends:\n\n' +
+           '1. WiFi Connectivity:\n' +
+           '   • Downtown: Peak hour disruptions (+45% complaints)\n' +
+           '   • Midtown: Connection speed issues (+20% complaints)\n\n' +
+           '2. Breakfast Service:\n' +
+           '   • Wait times increased by 25%\n' +
+           '   • Food temperature complaints (+30%)\n' +
+           '   • Staff response time (+15%)\n\n' +
+           '3. Room Turnover:\n' +
+           '   • Delayed check-ins (+10%)\n' +
+           '   • Deep cleaning backlogs (+15%)\n\n' +
+           'Would you like a detailed action plan for any of these areas?';
+  } else if (query.toLowerCase().includes('compare')) {
+    return 'I can help you compare hotel locations. Would you like to analyze specific metrics like:\n' +
+           '• Guest satisfaction ratings\n' +
+           '• Average daily rates\n' +
+           '• Occupancy rates\n' +
+           '• RevPAR performance\n' +
+           '• Service quality metrics\n\n' +
+           'You can also use our detailed comparison tool in the Performance Comparison section.';
+  } else if (query.toLowerCase().includes('complaining')) {
+    return 'This week\'s top guest concerns across locations are:\n\n' +
+           '1. WiFi Connectivity (45% of complaints)\n' +
+           '   • Most reported at Downtown location\n' +
+           '   • Peak issues during evening hours\n\n' +
+           '2. Breakfast Service (30%)\n' +
+           '   • Temperature of food items\n' +
+           '   • Wait times during peak hours\n\n' +
+           '3. Room Cleanliness (15%)\n' +
+           '   • Bathroom maintenance\n' +
+           '   • Deep cleaning scheduling\n\n' +
+           '4. Check-in Delays (10%)\n' +
+           '   • System processing issues\n' +
+           '   • Staff response time\n\n' +
+           'Would you like to see location-specific breakdowns?';
   } else {
-    return 'I\'d be happy to help you analyze that. Could you provide more specific details about what you\'d like to know?';
+    return 'I\'d be happy to help analyze that. Could you provide more specific details about what you\'d like to know about our hotel operations?';
   }
 };
 
@@ -142,20 +158,20 @@ const PulseDrawer: React.FC<PulseDrawerProps> = ({ isOpen, onClose }) => {
           <MessageAvatar />
           <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 max-w-[80%]">
             <p className="text-gray-900 dark:text-white">
-              Hi! I'm Pulse, your communications insights assistant. How can I help you today?
+              Hi! I'm Pulse, your hotel insights assistant. How can I help you today?
             </p>
             <div className="mt-4 space-y-2">
               <button
-                onClick={() => handleSuggestionClick("What's the current average wait time?")}
+                onClick={() => handleSuggestionClick("What's the current average check-in time?")}
                 className="block w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors duration-200"
               >
-                What's the current average wait time?
+                What's the current average check-in time?
               </button>
               <button
-                onClick={() => handleSuggestionClick("How's our patient satisfaction trending?")}
+                onClick={() => handleSuggestionClick("How's our guest satisfaction trending?")}
                 className="block w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors duration-200"
               >
-                How's our patient satisfaction trending?
+                How's our guest satisfaction trending?
               </button>
               <button
                 onClick={() => handleSuggestionClick("What are the top things that are getting worse over the past month?")}
@@ -164,16 +180,16 @@ const PulseDrawer: React.FC<PulseDrawerProps> = ({ isOpen, onClose }) => {
                 What are the top things that are getting worse over the past month?
               </button>
               <button
-                onClick={() => handleSuggestionClick("Compare performance between two clinics")}
+                onClick={() => handleSuggestionClick("Compare performance between hotel locations")}
                 className="block w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors duration-200"
               >
-                Compare performance between two clinics
+                Compare performance between hotel locations
               </button>
               <button
-                onClick={() => handleSuggestionClick("What are patients complaining about this week?")}
+                onClick={() => handleSuggestionClick("What are guests complaining about this week?")}
                 className="block w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors duration-200"
               >
-                What are patients complaining about this week?
+                What are guests complaining about this week?
               </button>
             </div>
           </div>

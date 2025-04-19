@@ -1,59 +1,105 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface TrendAlert {
   id: string;
   message: string;
-  source: 'Twitter' | 'Facebook' | 'Yelp' | 'Call Logs';
+  source: string;
   increase: number;
   action: string;
   timeframe: string;
   icon: string;
+  actionLink: {
+    path: string;
+    tab?: string;
+    section?: string;
+  };
 }
 
 const TrendAlerts: React.FC = () => {
+  const navigate = useNavigate();
+
   const trends: TrendAlert[] = [
     {
       id: '1',
-      message: 'Mentions of "long hold times" up 40% on Facebook',
-      source: 'Facebook',
-      increase: 40,
-      action: 'Review call center capacity',
+      message: 'Increase in "slow check-in process" mentions on TripAdvisor',
+      source: 'TripAdvisor',
+      increase: 35,
+      action: 'Review front desk staffing',
       timeframe: 'Last 24 hours',
-      icon: 'M18.77 7.46H14.5v-1.9c0-.9-.6-1.1-1-1.1h-3c-.4 0-1 .2-1 1.1v1.9H5.23c-.4 0-1 .2-1 1.1v3c0 .9.6 1.1 1 1.1h4.27v1.9c0 .9.6 1.1 1 1.1h3c.4 0 1-.2 1-1.1v-1.9h4.27c.4 0 1-.2 1-1.1v-3c0-.9-.6-1.1-1-1.1z',
+      icon: 'M19.465 10.04a4.904 4.904 0 0 0-7.442.693 4.904 4.904 0 0 0-7.442-.693A4.912 4.912 0 0 0 4.74 16.85a31.862 31.862 0 0 0 7.283 4.908 31.862 31.862 0 0 0 7.283-4.908 4.912 4.912 0 0 0 .159-6.81z',
+      actionLink: {
+        path: '/front-office',
+        tab: 'alerts'
+      }
     },
     {
       id: '2',
-      message: 'Spike in Twitter complaints tagged #LateAppointments',
-      source: 'Twitter',
-      increase: 65,
-      action: 'Adjust scheduling buffer',
+      message: 'WiFi connectivity complaints spike on Booking.com reviews',
+      source: 'Booking.com',
+      increase: 45,
+      action: 'Contact IT support',
       timeframe: 'Last 3 days',
-      icon: 'M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z',
+      icon: 'M21.04 3H2.96A2.96 2.96 0 0 0 0 5.96v12.08A2.96 2.96 0 0 0 2.96 21h18.08A2.96 2.96 0 0 0 24 18.04V5.96A2.96 2.96 0 0 0 21.04 3zM12 17.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z',
+      actionLink: {
+        path: '/marketing',
+        tab: 'reviews',
+        section: 'wifi'
+      }
     },
     {
       id: '3',
-      message: 'Negative sentiment in call transcripts about wait times',
-      source: 'Call Logs',
-      increase: 25,
-      action: 'Analyze peak hours',
+      message: 'Negative feedback about room cleanliness in guest surveys',
+      source: 'Guest Feedback',
+      increase: 30,
+      action: 'Review housekeeping protocols',
       timeframe: 'Last 7 days',
       icon: 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z',
+      actionLink: {
+        path: '/housekeeping',
+        tab: 'tasks'
+      }
     },
+    {
+      id: '4',
+      message: 'Rising concerns about breakfast quality on Google Reviews',
+      source: 'Google Reviews',
+      increase: 28,
+      action: 'Assess breakfast service',
+      timeframe: 'Last 5 days',
+      icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z',
+      actionLink: {
+        path: '/marketing',
+        tab: 'reviews',
+        section: 'dining'
+      }
+    }
   ];
 
   const getSourceColor = (source: string) => {
     switch (source) {
-      case 'Twitter':
-        return 'text-blue-400 bg-blue-50 dark:bg-blue-900/20';
-      case 'Facebook':
+      case 'TripAdvisor':
+        return 'text-green-600 bg-green-50 dark:bg-green-900/20';
+      case 'Booking.com':
         return 'text-blue-600 bg-blue-50 dark:bg-blue-900/20';
-      case 'Yelp':
-        return 'text-red-500 bg-red-50 dark:bg-red-900/20';
-      case 'Call Logs':
-        return 'text-gray-600 bg-gray-50 dark:bg-gray-900/20';
+      case 'Google Reviews':
+        return 'text-blue-500 bg-blue-50 dark:bg-blue-900/20';
+      case 'Guest Feedback':
+        return 'text-purple-600 bg-purple-50 dark:bg-purple-900/20';
       default:
         return 'text-gray-500 bg-gray-50 dark:bg-gray-900/20';
     }
+  };
+
+  const handleActionClick = (actionLink: TrendAlert['actionLink']) => {
+    // Navigate to the specified path
+    navigate(actionLink.path, {
+      state: {
+        // Pass additional state for the receiving component to handle
+        activeTab: actionLink.tab,
+        section: actionLink.section
+      }
+    });
   };
 
   return (
@@ -91,8 +137,12 @@ const TrendAlerts: React.FC = () => {
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     {trend.timeframe}
                   </span>
-                  <button className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
-                    {trend.action} →
+                  <button 
+                    onClick={() => handleActionClick(trend.actionLink)}
+                    className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 flex items-center"
+                  >
+                    {trend.action}
+                    <span className="ml-1">→</span>
                   </button>
                 </div>
               </div>

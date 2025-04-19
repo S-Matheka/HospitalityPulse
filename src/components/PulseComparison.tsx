@@ -3,61 +3,63 @@ import { StarIcon } from '@heroicons/react/24/solid';
 
 interface LocationScore {
   name: string;
-  type: 'current' | 'peer' | 'competitor';
+  type: 'chain' | 'independent' | 'competitor';
   overallRating: number;
   googleRating: number;
-  yelpRating: number;
-  facebookRating: number;
+  tripAdvisorRating: number;
+  bookingRating: number;
 }
 
 const PulseComparison: React.FC = () => {
   const locations: LocationScore[] = [
     {
-      name: 'Midtown Clinic',
-      type: 'peer',
-      overallRating: 4.3,
-      googleRating: 4.5,
-      yelpRating: 4.2,
-      facebookRating: 4.4
-    },
-    {
-      name: 'Downtown Healthcare',
-      type: 'peer',
-      overallRating: 4.4,
+      name: 'Grand Plaza Hotel',
+      type: 'chain',
+      overallRating: 4.5,
       googleRating: 4.6,
-      yelpRating: 4.1,
-      facebookRating: 4.5
+      tripAdvisorRating: 4.4,
+      bookingRating: 4.5
     },
     {
-      name: 'Piedmont Hospital',
-      type: 'competitor',
-      overallRating: 4.2,
-      googleRating: 4.4,
-      yelpRating: 4.0,
-      facebookRating: 4.3
+      name: 'Riverside Inn',
+      type: 'chain',
+      overallRating: 4.4,
+      googleRating: 4.5,
+      tripAdvisorRating: 4.3,
+      bookingRating: 4.4
     },
     {
-      name: 'Emory Clinic',
+      name: 'The Metropolitan',
       type: 'competitor',
       overallRating: 4.6,
-      googleRating: 4.8,
-      yelpRating: 4.4,
-      facebookRating: 4.7
+      googleRating: 4.7,
+      tripAdvisorRating: 4.5,
+      bookingRating: 4.6
     },
     {
-      name: 'Northside Medical',
+      name: 'Boutique Central',
+      type: 'independent',
+      overallRating: 4.7,
+      googleRating: 4.8,
+      tripAdvisorRating: 4.6,
+      bookingRating: 4.7
+    },
+    {
+      name: 'Harbor View Hotel',
       type: 'competitor',
       overallRating: 4.3,
-      googleRating: 4.5,
-      yelpRating: 4.2,
-      facebookRating: 4.4
+      googleRating: 4.4,
+      tripAdvisorRating: 4.2,
+      bookingRating: 4.3
     }
   ];
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'peer':
-        return 'Peer Clinic';
+      case 'chain':
+        return 'Chain Property';
+      case 'independent':
+        return 'Independent';
       case 'competitor':
         return 'Competitor';
       default:
@@ -67,7 +69,9 @@ const PulseComparison: React.FC = () => {
 
   const getTypeStyles = (type: string) => {
     switch (type) {
-      case 'peer':
+      case 'chain':
+        return 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300';
+      case 'independent':
         return 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300';
       case 'competitor':
         return 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300';
@@ -92,7 +96,7 @@ const PulseComparison: React.FC = () => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-        Comparison Locations
+        Comparison Properties
       </h2>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -131,21 +135,21 @@ const PulseComparison: React.FC = () => {
                   </div>
                   <div>
                     <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                      Yelp
+                      TripAdv
                     </div>
                     <div className="flex items-center">
                       <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        {location.yelpRating.toFixed(1)}
+                        {location.tripAdvisorRating.toFixed(1)}
                       </span>
                     </div>
                   </div>
                   <div>
                     <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                      FB
+                      Book
                     </div>
                     <div className="flex items-center">
                       <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        {location.facebookRating.toFixed(1)}
+                        {location.bookingRating.toFixed(1)}
                       </span>
                     </div>
                   </div>

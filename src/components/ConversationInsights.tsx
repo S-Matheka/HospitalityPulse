@@ -4,37 +4,37 @@ import { CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/so
 
 interface InsightTrend {
   topic: string;
-  category: 'patient-experience' | 'communication' | 'pharmacy';
+  category: 'guest-experience' | 'service-quality' | 'operations';
   severity: 'high' | 'medium' | 'improved';
   metric: string;
   action: string;
   detectedTime: string;
 }
 
-const ConversationInsights: React.FC = () => {
+const OperationalInsights: React.FC = () => {
   const insights: InsightTrend[] = [
     {
-      topic: 'Patient Experience',
-      category: 'patient-experience',
+      topic: 'WiFi Service',
+      category: 'guest-experience',
       severity: 'high',
-      metric: 'Wait times exceeded 30 minutes for 5+ patients',
-      action: 'Review staffing levels',
+      metric: 'Connection issues reported by 45% of guests in Downtown location',
+      action: 'Review network infrastructure',
       detectedTime: 'Detected 2 hours ago'
     },
     {
-      topic: 'Communication',
-      category: 'communication',
+      topic: 'Breakfast Service',
+      category: 'service-quality',
       severity: 'medium',
-      metric: 'Call abandonment rate at 12% (threshold: 10%)',
-      action: 'Analyze call patterns',
+      metric: 'Average wait time increased to 15 minutes (threshold: 10 minutes)',
+      action: 'Analyze peak hour staffing',
       detectedTime: 'Detected 4 hours ago'
     },
     {
-      topic: 'Pharmacy',
-      category: 'pharmacy',
+      topic: 'Room Turnover',
+      category: 'operations',
       severity: 'improved',
-      metric: 'Prescription processing delays reduced by 15%',
-      action: 'View pharmacy metrics',
+      metric: 'Cleaning completion rate improved by 20% in Midtown location',
+      action: 'View housekeeping metrics',
       detectedTime: 'Updated 1 hour ago'
     }
   ];
@@ -55,7 +55,7 @@ const ConversationInsights: React.FC = () => {
   return (
     <div className="rounded-lg bg-gray-900 p-6">
       <h2 className="text-xl font-semibold text-white mb-4">
-        Operational Risk Feed
+        Real-time Service Alerts
       </h2>
 
       <div className="space-y-4">
@@ -94,4 +94,4 @@ const ConversationInsights: React.FC = () => {
   );
 };
 
-export default ConversationInsights; 
+export default OperationalInsights; 

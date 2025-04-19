@@ -14,7 +14,7 @@ interface ComparisonResult {
     title: string;
     details: string;
   };
-  staffing: {
+  revenue: {
     title: string;
     details: string;
   };
@@ -23,25 +23,25 @@ interface ComparisonResult {
 const mockComparisonResults: ComparisonResult = {
   overview: {
     title: "Performance Overview",
-    details: "Midtown Clinic shows 15% higher patient satisfaction but 20% longer wait times compared to Downtown Clinic."
+    details: "Sunset Plaza Hotel - Downtown shows 12% higher guest satisfaction but 8% lower occupancy rate compared to Northside location."
   },
   metrics: {
     title: "Key Metrics",
-    details: "Average wait time: Midtown (22min) vs Downtown (15min). Patient satisfaction: Midtown (4.5/5) vs Downtown (4.2/5)."
+    details: "Average daily rate: Downtown ($245) vs Northside ($225). Guest satisfaction: Downtown (4.6/5) vs Northside (4.1/5). Occupancy: Downtown (82%) vs Northside (90%)."
   },
   complaints: {
-    title: "Complaint Analysis",
-    details: "Top issues at Midtown: parking availability (40% of complaints). Downtown: wait times (35% of complaints)."
+    title: "Service Analysis",
+    details: "Top issues at Downtown: WiFi connectivity (45% of complaints), breakfast service (30%). Northside: room cleanliness (35%), check-in delays (25%)."
   },
-  staffing: {
-    title: "Staffing Status",
-    details: "Midtown at 92% staffing capacity with 2 open positions. Downtown at 85% with 3 open positions."
+  revenue: {
+    title: "Revenue Performance",
+    details: "Downtown RevPAR $200.90 (+15% YoY), with strong performance in premium rooms. Northside RevPAR $202.50 (+5% YoY), driven by higher occupancy."
   }
 };
 
 const PulseQueries: React.FC = () => {
-  const [selectedClinicA, setSelectedClinicA] = useState('');
-  const [selectedClinicB, setSelectedClinicB] = useState('');
+  const [selectedHotelA, setSelectedHotelA] = useState('');
+  const [selectedHotelB, setSelectedHotelB] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [comparisonResult, setComparisonResult] = useState<ComparisonResult | null>(null);
 
@@ -57,51 +57,53 @@ const PulseQueries: React.FC = () => {
   return (
     <div className="space-y-6 p-6">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-        Pulse Location Comparison
+        Hotel Performance Comparison
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Select Locations to Compare
+            Select Hotels to Compare
           </h2>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Clinic A
+                Hotel A
               </label>
               <select
-                value={selectedClinicA}
-                onChange={(e) => setSelectedClinicA(e.target.value)}
+                value={selectedHotelA}
+                onChange={(e) => setSelectedHotelA(e.target.value)}
                 className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
-                <option value="">Select a clinic</option>
-                <option value="midtown">Midtown Clinic</option>
-                <option value="downtown">Downtown Clinic</option>
-                <option value="buckhead">Buckhead Clinic</option>
+                <option value="">Select a hotel</option>
+                <option value="downtown">Sunset Plaza Hotel - Downtown</option>
+                <option value="midtown">Sunset Plaza Hotel - Midtown</option>
+                <option value="northside">Sunset Plaza Hotel - Northside</option>
+                <option value="southside">Sunset Plaza Hotel - Southside</option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Clinic B
+                Hotel B
               </label>
               <select
-                value={selectedClinicB}
-                onChange={(e) => setSelectedClinicB(e.target.value)}
+                value={selectedHotelB}
+                onChange={(e) => setSelectedHotelB(e.target.value)}
                 className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
-                <option value="">Select a clinic</option>
-                <option value="midtown">Midtown Clinic</option>
-                <option value="downtown">Downtown Clinic</option>
-                <option value="buckhead">Buckhead Clinic</option>
+                <option value="">Select a hotel</option>
+                <option value="downtown">Sunset Plaza Hotel - Downtown</option>
+                <option value="midtown">Sunset Plaza Hotel - Midtown</option>
+                <option value="northside">Sunset Plaza Hotel - Northside</option>
+                <option value="southside">Sunset Plaza Hotel - Southside</option>
               </select>
             </div>
 
             <button
               onClick={handleCompare}
-              disabled={!selectedClinicA || !selectedClinicB || isLoading}
+              disabled={!selectedHotelA || !selectedHotelB || isLoading}
               className="w-full flex items-center justify-center px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
@@ -112,7 +114,7 @@ const PulseQueries: React.FC = () => {
               ) : (
                 <>
                   <ChartBarIcon className="h-5 w-5 mr-2" />
-                  Run Pulse Comparison
+                  Compare Performance
                 </>
               )}
             </button>
@@ -182,10 +184,10 @@ const PulseQueries: React.FC = () => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    {comparisonResult.staffing.title}
+                    {comparisonResult.revenue.title}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {comparisonResult.staffing.details}
+                    {comparisonResult.revenue.details}
                   </p>
                 </div>
               </div>

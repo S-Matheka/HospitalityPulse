@@ -8,11 +8,11 @@ import StaffIssueDetail from './StaffIssueDetail';
 
 export interface StaffIssue {
   id: string | number;
-  category: string;
+  category: 'frontDesk' | 'housekeeping' | 'foodService' | 'maintenance' | 'spa';
   title: string;
   description: string;
-  source: string;
-  severity: string;
+  source: 'operations' | 'feedback' | 'system' | 'staff';
+  severity: 'escalating' | 'high' | 'moderate' | 'resolved';
   timestamp?: string;
   date?: string;
   metrics?: {
@@ -65,48 +65,87 @@ const getSeverityColor = (severity: string) => {
 // Default staff issues if none are provided
 const defaultStaffIssues: StaffIssue[] = [
   {
-    id: '2',
-    category: 'nursing',
-    title: 'Missed Follow-up Calls',
-    description: 'Missed 8 follow-up calls at Clinic B (Nurse line)',
-    source: 'operational',
-    severity: 'moderate',
-    timestamp: 'Today',
+    id: '1',
+    category: 'housekeeping',
+    title: 'Room Turnover Delays',
+    description: '12 rooms pending cleanup, affecting check-in availability. Average delay: 45 minutes.',
+    source: 'operations',
+    severity: 'high',
+    timestamp: 'Now',
     metrics: {
-      value: '8 calls',
+      value: '12 rooms',
+      trend: 'increase'
     },
     action: {
-      text: 'Review call handling protocol',
-      link: '/protocols/calls'
+      text: 'View housekeeping schedule',
+      link: '/staffing/housekeeping'
+    }
+  },
+  {
+    id: '2',
+    category: 'foodService',
+    title: 'Breakfast Service Staff Shortage',
+    description: 'Only 4 of 6 required staff present. Affecting service time and buffet replenishment.',
+    source: 'operations',
+    severity: 'escalating',
+    timestamp: '15 minutes ago',
+    metrics: {
+      value: '67% staffed',
+      trend: 'decrease'
+    },
+    action: {
+      text: 'Adjust staff allocation',
+      link: '/staffing/food-service'
     }
   },
   {
     id: '3',
-    category: 'nursing',
-    title: 'Extended Nurse Check-in Times',
-    description: 'Multiple patients reported long wait times for nurse check-ins',
+    category: 'frontDesk',
+    title: 'Check-in Queue Management',
+    description: 'Average check-in time exceeding 10 minutes during peak hours (3-5 PM)',
     source: 'feedback',
-    severity: 'escalating',
-    timestamp: 'Last 24 hours',
+    severity: 'moderate',
+    timestamp: '1 hour ago',
+    metrics: {
+      value: '10+ min wait',
+      trend: 'increase'
+    },
     action: {
-      text: 'Review shift allocation',
-      link: '/staffing/shifts'
+      text: 'Review peak hour staffing',
+      link: '/operations/front-desk'
     }
   },
   {
     id: '4',
-    category: 'communication',
-    title: 'Patient Communication Issues',
-    description: 'Negative sentiment in 12 calls included "nurse didn\'t explain well"',
-    source: 'calls',
+    category: 'maintenance',
+    title: 'AC System Response Time',
+    description: 'Maintenance team response time for AC issues averaging 45 minutes. 3 rooms affected.',
+    source: 'system',
     severity: 'moderate',
     timestamp: '2 hours ago',
     metrics: {
-      value: '12 calls',
+      value: '45 min response',
+      trend: 'increase'
     },
     action: {
-      text: 'Schedule communication training',
-      link: '/training/communication'
+      text: 'View maintenance log',
+      link: '/maintenance/logs'
+    }
+  },
+  {
+    id: '5',
+    category: 'spa',
+    title: 'Spa Booking Conflicts',
+    description: 'Double bookings reported for 2 treatment rooms. Weekend schedule affected.',
+    source: 'staff',
+    severity: 'moderate',
+    timestamp: '3 hours ago',
+    metrics: {
+      value: '2 conflicts',
+    },
+    action: {
+      text: 'Review booking system',
+      link: '/spa/bookings'
     }
   }
 ];
@@ -202,11 +241,13 @@ const StaffIssuesMonitor: React.FC<StaffIssuesMonitorProps> = ({ issues = defaul
         </div>
       </div>
 
-      <StaffIssueDetail
-        issue={selectedIssue!}
-        isOpen={!!selectedIssue}
-        onClose={() => setSelectedIssue(null)}
-      />
+      {selectedIssue && (
+        <StaffIssueDetail
+          issue={selectedIssue}
+          isOpen={true}
+          onClose={() => setSelectedIssue(null)}
+        />
+      )}
     </>
   );
 };

@@ -1,343 +1,703 @@
-import React from 'react';
-import { Dialog } from '@headlessui/react';
+import React, { useState } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
 import {
-  PhoneIcon,
-  ClockIcon,
   XMarkIcon,
-  UserCircleIcon,
-  ChatBubbleLeftRightIcon,
+  PhoneIcon,
+  PhoneArrowUpRightIcon,
+  PhoneXMarkIcon,
+  ClockIcon,
+  ChartBarIcon,
+  UserGroupIcon,
+  BuildingOfficeIcon,
   ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  CheckCircleIcon
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
-interface ServiceLineMetrics {
-  name: string;
+type MetricId = 'total-calls' | 'answered-calls' | 'abandoned-calls' | 'wait-time';
+
+interface Metrics {
   totalCalls: number;
   answeredCalls: number;
-  answerRate: number;
-  avgHoldTime: string;
-  commonTopics: string[];
-}
-
-interface AbandonedCall {
-  id: string;
-  phoneNumber: string;
-  serviceLine: 'Nurse Triage Line' | 'Front Desk' | 'Prescription Refill';
-  timeAbandoned: string;
-}
-
-interface StatCard {
-  id: string;
-  title: string;
-  value: string;
-  sublabel: string;
-  icon: React.ComponentType<any>;
-  iconColor: string;
-  metrics: {
-    frontDesk: { value: number; total: number };
-    prescriptions: { value: number; total: number };
-    appointments: { value: number; total: number };
-    billing: { value: number; total: number };
+  abandonedCalls: number;
+  averageWaitTime: string;
+  peakWaitTime: string;
+  date: string;
+  departmentBreakdown: {
+    [key: string]: {
+      total: number;
+      answered: number;
+      abandoned: number;
+      avgWait: string;
+    };
   };
 }
 
 interface DrilldownProps {
   isOpen: boolean;
   onClose: () => void;
-  metric: StatCard;
+  metricId: MetricId;
+  metrics: Metrics;
 }
 
-const formatPhoneNumber = (num: string) => {
-  return `(${num.substring(0, 3)}) ${num.substring(3, 6)}-${num.substring(6)}`;
+// Mock data for the charts
+const hourlyData = [
+  { hour: '6AM', calls: 25, topic: 'Early Check-out' },
+  { hour: '7AM', calls: 45, topic: 'Breakfast Service' },
+  { hour: '8AM', calls: 85, topic: 'Housekeeping Requests' },
+  { hour: '9AM', calls: 95, topic: 'Late Check-out Requests' },
+  { hour: '10AM', calls: 120, topic: 'Room Service' },
+  { hour: '11AM', calls: 110, topic: 'Concierge Services' },
+  { hour: '12PM', calls: 105, topic: 'Restaurant Reservations' },
+  { hour: '1PM', calls: 95, topic: 'Room Service' },
+  { hour: '2PM', calls: 115, topic: 'Early Check-in' },
+  { hour: '3PM', calls: 145, topic: 'Check-in Peak' },
+  { hour: '4PM', calls: 125, topic: 'Check-in/Local Info' },
+  { hour: '5PM', calls: 100, topic: 'Dinner Reservations' },
+  { hour: '6PM', calls: 85, topic: 'Evening Services' },
+  { hour: '7PM', calls: 75, topic: 'Room Service' },
+  { hour: '8PM', calls: 65, topic: 'Entertainment Info' },
+  { hour: '9PM', calls: 45, topic: 'Late Services' }
+];
+
+const peakTimeData = {
+  checkIn: {
+    peak: '3:00 PM - 5:00 PM',
+    avgVolume: 135,
+    staffLevel: 'High'
+  },
+  roomService: {
+    peak: '6:00 PM - 8:00 PM',
+    avgVolume: 85,
+    staffLevel: 'Medium'
+  },
+  housekeeping: {
+    peak: '8:00 AM - 10:00 AM',
+    avgVolume: 90,
+    staffLevel: 'High'
+  },
+  concierge: {
+    peak: '9:00 AM - 11:00 AM',
+    avgVolume: 65,
+    staffLevel: 'Medium'
+  }
 };
 
-const CallMetricsDrilldown: React.FC<DrilldownProps> = ({ isOpen, onClose, metric }) => {
-  const getMetricsForCard = (cardId: string): ServiceLineMetrics[] | AbandonedCall[] => {
-    switch (cardId) {
+// Add these interfaces at the top of the file
+interface DepartmentData {
+  name: string;
+  total: number;
+  answered: number;
+  abandoned: number;
+  avgWait: string;
+  answerRate: string;
+}
+
+interface TooltipProps {
+  active?: boolean;
+  payload?: any[];
+  label?: string;
+  metricType?: MetricId;
+  hourlyView?: boolean;
+  metrics: Metrics;
+}
+
+type PeakTimeKey = 'checkIn' | 'roomService' | 'housekeeping' | 'concierge';
+
+// Transform department data for charts
+const transformDepartmentData = (metrics: DrilldownProps['metrics']): DepartmentData[] => {
+  if (!metrics?.departmentBreakdown) {
+    return [];
+  }
+  return Object.entries(metrics.departmentBreakdown).map(([dept, data]) => ({
+    name: dept.charAt(0).toUpperCase() + dept.slice(1),
+    total: data.total,
+    answered: data.answered,
+    abandoned: data.abandoned,
+    avgWait: data.avgWait,
+    answerRate: ((data.answered / data.total) * 100).toFixed(1)
+  }));
+};
+
+const CustomTooltip: React.FC<TooltipProps> = ({ active, payload, label, metricType, hourlyView = false, metrics }) => {
+  if (!active || !payload || !payload.length) return null;
+
+  if (hourlyView) {
+    const hourData = hourlyData.find(h => h.hour === label);
+    return (
+      <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+        <p className="font-medium text-gray-900 dark:text-white mb-1">{label}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Calls: <span className="font-semibold">{hourData?.calls}</span>
+        </p>
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Main Topic: <span className="font-semibold">{hourData?.topic}</span>
+        </p>
+      </div>
+    );
+  }
+
+  const getValue = () => {
+    const value = payload[0].value;
+    if (metricType === 'wait-time') {
+      return value + ' min';
+    }
+    return value.toLocaleString();
+  };
+
+  const getDepartmentDetails = (metrics: Metrics) => {
+    if (!label) return null;
+    const departmentData = transformDepartmentData(metrics);
+    const dept = departmentData.find(d => d.name === label);
+    if (!dept) return null;
+
+    switch (metricType) {
       case 'total-calls':
-        return [
-          {
-            name: 'Nurse Triage Line',
-            totalCalls: 425,
-            answeredCalls: 398,
-            answerRate: 93.6,
-            avgHoldTime: '1m 45s',
-            commonTopics: [
-              'Symptom consultations',
-              'Post-procedure follow-ups',
-              'Medication guidance'
-            ]
-          },
-          {
-            name: 'Front Desk',
-            totalCalls: 512,
-            answeredCalls: 456,
-            answerRate: 89.1,
-            avgHoldTime: '2m 15s',
-            commonTopics: [
-              'Appointment scheduling',
-              'Insurance inquiries',
-              'Registration assistance'
-            ]
-          },
-          {
-            name: 'Prescription Refill',
-            totalCalls: 310,
-            answeredCalls: 278,
-            answerRate: 89.7,
-            avgHoldTime: '1m 55s',
-            commonTopics: [
-              'Medication renewals',
-              'Prior authorizations',
-              'Pharmacy coordination'
-            ]
-          }
-        ];
-
+        return `${dept.answered} answered, ${dept.abandoned} abandoned`;
       case 'answered-calls':
-        return [
-          {
-            name: 'High Performance Lines',
-            totalCalls: 520,
-            answeredCalls: 494,
-            answerRate: 95.0,
-            avgHoldTime: '1m 30s',
-            commonTopics: [
-              'Routine inquiries',
-              'Quick resolutions',
-              'Efficient routing'
-            ]
-          },
-          {
-            name: 'Standard Performance',
-            totalCalls: 412,
-            answeredCalls: 371,
-            answerRate: 90.0,
-            avgHoldTime: '2m 15s',
-            commonTopics: [
-              'Complex inquiries',
-              'Multiple departments involved',
-              'Documentation required'
-            ]
-          },
-          {
-            name: 'Training Needed',
-            totalCalls: 315,
-            answeredCalls: 167,
-            answerRate: 53.0,
-            avgHoldTime: '3m 45s',
-            commonTopics: [
-              'New staff onboarding',
-              'Process unfamiliarity',
-              'System navigation'
-            ]
-          }
-        ];
-
+        return `${((dept.answered / dept.total) * 100).toFixed(1)}% answer rate`;
       case 'abandoned-calls':
-        return [
-          { id: 'ac1', phoneNumber: '4045551234', serviceLine: 'Front Desk', timeAbandoned: '5m 12s' },
-          { id: 'ac2', phoneNumber: '7705559876', serviceLine: 'Nurse Triage Line', timeAbandoned: '4m 45s' },
-          { id: 'ac3', phoneNumber: '6785551122', serviceLine: 'Prescription Refill', timeAbandoned: '6m 02s' },
-          { id: 'ac4', phoneNumber: '4045553344', serviceLine: 'Front Desk', timeAbandoned: '5m 30s' },
-          { id: 'ac5', phoneNumber: '7705555566', serviceLine: 'Front Desk', timeAbandoned: '7m 15s' },
-          { id: 'ac6', phoneNumber: '6785557788', serviceLine: 'Nurse Triage Line', timeAbandoned: '4m 58s' },
-        ] as AbandonedCall[];
-
+        return `${((dept.abandoned / dept.total) * 100).toFixed(1)}% abandon rate`;
       case 'wait-time':
-        return [
-          {
-            name: 'Quick Response',
-            totalCalls: 423,
-            answeredCalls: 423,
-            answerRate: 100,
-            avgHoldTime: '< 1m',
-            commonTopics: [
-              'Basic inquiries',
-              'Appointment confirmations',
-              'Quick questions'
-            ]
-          },
-          {
-            name: 'Standard Wait',
-            totalCalls: 534,
-            answeredCalls: 534,
-            answerRate: 100,
-            avgHoldTime: '2m - 3m',
-            commonTopics: [
-              'Insurance verifications',
-              'Prescription refills',
-              'Scheduling issues'
-            ]
-          },
-          {
-            name: 'Extended Wait',
-            totalCalls: 290,
-            answeredCalls: 290,
-            answerRate: 100,
-            avgHoldTime: '4m+',
-            commonTopics: [
-              'Complex cases',
-              'Multiple transfers',
-              'Provider consultation needed'
-            ]
-          }
-        ];
-
+        const key = label.toLowerCase().replace(/\s+/g, '') as PeakTimeKey;
+        return `Peak time: ${peakTimeData[key]?.peak || 'N/A'}`;
       default:
-        return [];
+        return '';
     }
   };
 
-  const getAnswerRateColor = (rate: number): string => {
-    if (rate >= 90) return 'text-success-500 dark:text-success-400';
-    if (rate >= 75) return 'text-warning-500 dark:text-warning-400';
-    return 'text-danger-500 dark:text-danger-400';
+  return (
+    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+      <p className="font-medium text-gray-900 dark:text-white mb-1">{label}</p>
+      <p className="text-sm text-gray-600 dark:text-gray-300">
+        {payload[0].name}: <span className="font-semibold">{getValue()}</span>
+      </p>
+      <p className="text-sm text-gray-600 dark:text-gray-300">
+        {getDepartmentDetails(metrics)}
+      </p>
+    </div>
+  );
+};
+
+// Update getMetricSpecificData function
+const getMetricSpecificData = (metricId: MetricId, metrics: Metrics) => {
+  const departmentData = transformDepartmentData(metrics);
+
+  switch (metricId) {
+    case 'total-calls':
+      return {
+        value: metrics.totalCalls,
+        label: 'Total Calls',
+        trend: `${Object.keys(metrics.departmentBreakdown).length} departments`,
+        chartData: departmentData.map(dept => ({
+          name: dept.name,
+          value: dept.total
+        }))
+      };
+    case 'answered-calls':
+      return {
+        value: metrics.answeredCalls,
+        label: 'Answered Calls',
+        trend: `${((metrics.answeredCalls / metrics.totalCalls) * 100).toFixed(1)}% answer rate`,
+        chartData: departmentData.map(dept => ({
+          name: dept.name,
+          value: dept.answered
+        }))
+      };
+    case 'abandoned-calls':
+      return {
+        value: metrics.abandonedCalls,
+        label: 'Abandoned Calls',
+        trend: `${((metrics.abandonedCalls / metrics.totalCalls) * 100).toFixed(1)}% abandon rate`,
+        chartData: departmentData.map(dept => ({
+          name: dept.name,
+          value: dept.abandoned
+        }))
+      };
+    case 'wait-time':
+      return {
+        value: metrics.averageWaitTime,
+        label: 'Average Wait Time',
+        trend: `Peak: ${metrics.peakWaitTime}`,
+        chartData: departmentData.map(dept => ({
+          name: dept.name,
+          value: parseFloat(dept.avgWait.split('m')[0])
+        }))
+      };
+    default:
+      return {
+        value: 0,
+        label: '',
+        trend: '',
+        chartData: []
+      };
+  }
+};
+
+interface Recommendation {
+  title: string;
+  description: string;
+  icon: JSX.Element;
+}
+
+// Update getRecommendations function
+const getRecommendations = (metricId: MetricId, metrics: Metrics): Recommendation[] => {
+  switch (metricId) {
+    case 'total-calls':
+      return [
+        {
+          title: 'Peak Volume Management',
+          description: `Total calls: ${metrics.totalCalls}. Consider reviewing staffing levels during peak hours.`,
+          icon: <UserGroupIcon className="h-5 w-5 text-blue-400" />
+        },
+        {
+          title: 'Resource Distribution',
+          description: 'Review department distribution to optimize resource allocation.',
+          icon: <BuildingOfficeIcon className="h-5 w-5 text-blue-400" />
+        },
+        {
+          title: 'Call Pattern Analysis',
+          description: 'Review hourly distribution to optimize staff scheduling.',
+          icon: <ChartBarIcon className="h-5 w-5 text-blue-400" />
+        }
+      ];
+    case 'answered-calls':
+      return [
+        {
+          title: 'Performance Analysis',
+          description: `Answer rate: ${((metrics.answeredCalls / metrics.totalCalls) * 100).toFixed(1)}%. Review staff performance.`,
+          icon: <ArrowTrendingUpIcon className="h-5 w-5 text-green-400" />
+        },
+        {
+          title: 'Training Opportunities',
+          description: 'Consider implementing cross-department training sessions.',
+          icon: <UserGroupIcon className="h-5 w-5 text-green-400" />
+        },
+        {
+          title: 'Best Practices',
+          description: 'Share successful handling techniques across departments.',
+          icon: <ChartBarIcon className="h-5 w-5 text-green-400" />
+        }
+      ];
+    case 'abandoned-calls':
+      return [
+        {
+          title: 'Critical Area Focus',
+          description: `${metrics.abandonedCalls} abandoned calls. Priority review needed.`,
+          icon: <ExclamationTriangleIcon className="h-5 w-5 text-red-400" />
+        },
+        {
+          title: 'Queue Management',
+          description: 'Review call routing and peak time handling.',
+          icon: <PhoneIcon className="h-5 w-5 text-red-400" />
+        },
+        {
+          title: 'Staff Allocation',
+          description: 'Consider flexible staffing for high-volume periods.',
+          icon: <UserGroupIcon className="h-5 w-5 text-red-400" />
+        }
+      ];
+    case 'wait-time':
+      return [
+        {
+          title: 'Peak Time Management',
+          description: `Peak wait time: ${metrics.peakWaitTime}. Review staffing during busy periods.`,
+          icon: <ClockIcon className="h-5 w-5 text-yellow-400" />
+        },
+        {
+          title: 'Service Level Optimization',
+          description: 'Consider implementing callback options during high-wait periods.',
+          icon: <PhoneArrowUpRightIcon className="h-5 w-5 text-yellow-400" />
+        },
+        {
+          title: 'Process Improvement',
+          description: 'Review call handling procedures for efficiency gains.',
+          icon: <ChartBarIcon className="h-5 w-5 text-yellow-400" />
+        }
+      ];
+  }
+  return [];
+};
+
+const CallMetricsDrilldown: React.FC<DrilldownProps> = ({
+  isOpen,
+  onClose,
+  metricId,
+  metrics
+}) => {
+  const [viewMode, setViewMode] = useState<'department' | 'hourly'>('department');
+  const departmentData = transformDepartmentData(metrics);
+  const metricData = getMetricSpecificData(metricId, metrics);
+
+  // Sample wait time data
+  const waitTimeData = [
+    { time: '9 AM', average: 2.5, peak: 4.2 },
+    { time: '10 AM', average: 3.1, peak: 5.0 },
+    { time: '11 AM', average: 4.2, peak: 6.5 },
+    { time: '12 PM', average: 5.0, peak: 7.8 },
+    { time: '1 PM', average: 4.8, peak: 7.2 },
+    { time: '2 PM', average: 3.9, peak: 6.0 },
+    { time: '3 PM', average: 3.2, peak: 5.5 },
+    { time: '4 PM', average: 2.8, peak: 4.8 }
+  ];
+
+  const getMetricTitle = () => {
+    switch (metricId) {
+      case 'total-calls':
+        return 'Total Calls Analysis';
+      case 'answered-calls':
+        return 'Answered Calls Analysis';
+      case 'abandoned-calls':
+        return 'Abandoned Calls Analysis';
+      case 'wait-time':
+        return 'Wait Time Analysis';
+      default:
+        return 'Call Metrics Analysis';
+    }
   };
 
-  const getHoldTimeColor = (time: string): string => {
-    if (time.includes('< 1m') || time.includes('45s')) return 'text-success-500 dark:text-success-400';
-    if (time.includes('5m+') || time.includes('N/A') || parseInt(time) >= 5) return 'text-danger-500 dark:text-danger-400';
-    return 'text-warning-500 dark:text-warning-400';
+  const getMetricIcon = () => {
+    switch (metricId) {
+      case 'total-calls':
+        return <PhoneIcon className="h-6 w-6 text-blue-400" />;
+      case 'answered-calls':
+        return <PhoneArrowUpRightIcon className="h-6 w-6 text-green-400" />;
+      case 'abandoned-calls':
+        return <PhoneXMarkIcon className="h-6 w-6 text-red-400" />;
+      case 'wait-time':
+        return <ClockIcon className="h-6 w-6 text-yellow-400" />;
+      default:
+        return <ChartBarIcon className="h-6 w-6 text-blue-400" />;
+    }
   };
 
-  const data = getMetricsForCard(metric.id);
-  const isAbandonedCalls = metric.id === 'abandoned-calls';
+  // Get chart data based on view mode
+  const getChartData = () => {
+    if (viewMode === 'hourly') {
+      return hourlyData.map(hour => ({
+        name: hour.hour,
+        value: hour.calls,
+        topic: hour.topic
+      }));
+    }
+    return metricData.chartData;
+  };
+
+  // Update type guard function
+  const isWaitTimeMetric = (metricId: MetricId | undefined): metricId is 'wait-time' => {
+    return metricId === 'wait-time';
+  };
 
   return (
-    <Dialog
-      open={isOpen}
-      onClose={onClose}
-      className="relative z-50"
-    >
-      <div className="fixed inset-0 bg-black/30 backdrop-blur-md" aria-hidden="true" />
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" />
+        </Transition.Child>
 
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className={`bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full ${isAbandonedCalls ? 'max-w-2xl' : 'max-w-4xl'}`}>
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {metric.title} {isAbandonedCalls ? 'Details' : 'Breakdown'}
-                </Dialog.Title>
-                <div className={`p-2 rounded-lg ${metric.iconColor} bg-opacity-10`}>
-                  <metric.icon className="h-5 w-5 text-white" />
-                </div>
-              </div>
-              <button
-                onClick={onClose}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <XMarkIcon className="h-6 w-6" />
-              </button>
-            </div>
-
-            {isAbandonedCalls ? (
-              <div className="max-h-96 overflow-y-auto">
-                <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {(data as AbandonedCall[]).map((call) => (
-                    <li key={call.id} className="py-3 flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <UserCircleIcon className="h-6 w-6 text-gray-400 dark:text-gray-500" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
-                            {formatPhoneNumber(call.phoneNumber)}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            Line: {call.serviceLine}
-                          </p>
-                        </div>
-                      </div>
-                      <div className={`text-sm font-medium ${getHoldTimeColor(call.timeAbandoned)}`}>
-                        Abandoned after {call.timeAbandoned}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {(data as ServiceLineMetrics[]).map((line) => (
-                  <div
-                    key={line.name}
-                    className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 hover:shadow-lg transition-shadow duration-200 border border-gray-200 dark:border-gray-600"
+        <div className="fixed inset-0 overflow-hidden">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-4xl transform rounded-lg bg-white dark:bg-gray-800 text-left align-middle shadow-xl transition-all flex flex-col max-h-[90vh]">
+                {/* Static Header */}
+                <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-3">
+                    {getMetricIcon()}
+                    <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-white">
+                      {getMetricTitle()}
+                    </Dialog.Title>
+                  </div>
+                  <button
+                    onClick={onClose}
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                   >
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-                      {line.name}
-                      {line.answerRate >= 90 && (
-                        <CheckCircleIcon className="h-5 w-5 ml-2 text-success-500 dark:text-success-400" />
+                    <XMarkIcon className="h-6 w-6" />
+                  </button>
+                </div>
+
+                {/* Static Chart Section */}
+                <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                        {isWaitTimeMetric(metricId) ? 'Wait Time Trends' : 
+                          viewMode === 'department' ? 'Department Breakdown' : 'Hourly Distribution'}
+                      </h3>
+                      {!isWaitTimeMetric(metricId) && (
+                        <div className="flex rounded-lg overflow-hidden">
+                          <button
+                            onClick={() => setViewMode('department')}
+                            className={`px-3 py-1 text-sm font-medium ${
+                              viewMode === 'department'
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                            }`}
+                          >
+                            By Department
+                          </button>
+                          <button
+                            onClick={() => setViewMode('hourly')}
+                            className={`px-3 py-1 text-sm font-medium ${
+                              viewMode === 'hourly'
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                            }`}
+                          >
+                            By Hour
+                          </button>
+                        </div>
                       )}
-                    </h3>
-
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <div className="flex items-center text-gray-500 dark:text-gray-400 mb-1">
-                            <PhoneIcon className="h-4 w-4 mr-1 text-primary-500 dark:text-primary-400" />
-                            <span className="text-sm">Call Volume</span>
-                          </div>
-                          <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                            {line.totalCalls}
-                          </div>
-                          <div className="text-sm text-primary-600 dark:text-primary-400">
-                            {line.answeredCalls} answered
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center text-gray-500 dark:text-gray-400 mb-1">
-                            {line.answerRate >= 75 ? (
-                              <ArrowTrendingUpIcon className="h-4 w-4 mr-1 text-success-500 dark:text-success-400" />
-                            ) : (
-                              <ArrowTrendingDownIcon className="h-4 w-4 mr-1 text-danger-500 dark:text-danger-400" />
-                            )}
-                            <span className="text-sm">Answer Rate</span>
-                          </div>
-                          <div className={`text-lg font-semibold ${getAnswerRateColor(line.answerRate)}`}>
-                            {line.answerRate}%
-                          </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            of total calls
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="flex items-center text-gray-500 dark:text-gray-400 mb-1">
-                          <ClockIcon className="h-4 w-4 mr-1 text-warning-500 dark:text-warning-400" />
-                          <span className="text-sm">Avg Hold Time</span>
-                        </div>
-                        <div className={`text-lg font-semibold ${getHoldTimeColor(line.avgHoldTime)}`}>
-                          {line.avgHoldTime}
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="flex items-center text-gray-500 dark:text-gray-400 mb-2">
-                          <ChatBubbleLeftRightIcon className="h-4 w-4 mr-1 text-gray-500 dark:text-gray-400" />
-                          <span className="text-sm">Common Topics</span>
-                        </div>
-                        <ul className="space-y-1">
-                          {line.commonTopics.map((topic, index) => (
-                            <li
-                              key={index}
-                              className="text-sm text-gray-600 dark:text-gray-300 flex items-center"
-                            >
-                              <span className="h-1.5 w-1.5 rounded-full bg-primary-500 dark:bg-primary-400 mr-2"></span>
-                              {topic}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                    </div>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        {isWaitTimeMetric(metricId) ? (
+                          <LineChart data={waitTimeData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                            <XAxis
+                              dataKey="time"
+                              tick={{ fill: '#9CA3AF' }}
+                              axisLine={{ stroke: '#4B5563' }}
+                            />
+                            <YAxis
+                              tick={{ fill: '#9CA3AF' }}
+                              axisLine={{ stroke: '#4B5563' }}
+                              tickFormatter={(value) => `${value}m`}
+                            />
+                            <Tooltip
+                              content={({ active, payload, label }) => {
+                                if (!active || !payload || !payload.length) return null;
+                                return (
+                                  <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                                    <p className="font-medium text-gray-900 dark:text-white mb-1">{label}</p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                                      Average: <span className="font-semibold">{payload[0].value}m</span>
+                                    </p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                                      Peak: <span className="font-semibold">{payload[1].value}m</span>
+                                    </p>
+                                  </div>
+                                );
+                              }}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="average"
+                              stroke="#EAB308"
+                              strokeWidth={2}
+                              dot={{ fill: '#EAB308', r: 4 }}
+                              name="Average Wait Time"
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="peak"
+                              stroke="#FB923C"
+                              strokeWidth={2}
+                              dot={{ fill: '#FB923C', r: 4 }}
+                              name="Peak Wait Time"
+                            />
+                          </LineChart>
+                        ) : (
+                          viewMode === 'department' ? (
+                            <BarChart data={getChartData()}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                              <XAxis
+                                dataKey="name"
+                                tick={{ fill: '#9CA3AF' }}
+                                axisLine={{ stroke: '#4B5563' }}
+                              />
+                              <YAxis
+                                tick={{ fill: '#9CA3AF' }}
+                                axisLine={{ stroke: '#4B5563' }}
+                              />
+                              <Tooltip
+                                content={<CustomTooltip metricType={metricId} metrics={metrics} />}
+                              />
+                              <Bar
+                                dataKey="value"
+                                fill={
+                                  metricId === 'total-calls'
+                                    ? '#3B82F6'
+                                    : metricId === 'answered-calls'
+                                    ? '#10B981'
+                                    : '#EF4444'
+                                }
+                              />
+                            </BarChart>
+                          ) : (
+                            <LineChart data={getChartData()}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                              <XAxis
+                                dataKey="name"
+                                tick={{ fill: '#9CA3AF' }}
+                                axisLine={{ stroke: '#4B5563' }}
+                              />
+                              <YAxis
+                                tick={{ fill: '#9CA3AF' }}
+                                axisLine={{ stroke: '#4B5563' }}
+                              />
+                              <Tooltip
+                                content={<CustomTooltip hourlyView={true} metricType={metricId} metrics={metrics} />}
+                              />
+                              <Line
+                                type="monotone"
+                                dataKey="value"
+                                stroke={
+                                  metricId === 'total-calls'
+                                    ? '#3B82F6'
+                                    : metricId === 'answered-calls'
+                                    ? '#10B981'
+                                    : '#EF4444'
+                                }
+                                strokeWidth={2}
+                                dot={{ fill: '#3B82F6', r: 4 }}
+                                activeDot={{ r: 6 }}
+                              />
+                            </LineChart>
+                          )
+                        )}
+                      </ResponsiveContainer>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                  {/* Key Stats */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                          {metricData.label}
+                        </h3>
+                      </div>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                        {metricData.value}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {metricData.trend}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Recommendations Section */}
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
+                      Recommendations
+                    </h3>
+                    <div className="space-y-4">
+                      {getRecommendations(metricId, metrics).map((recommendation, index) => (
+                        <div key={index} className="flex items-start space-x-3">
+                          <div className="flex-shrink-0 mt-1">
+                            {recommendation.icon}
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-medium text-gray-900 dark:text-white">
+                              {recommendation.title}
+                            </h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {recommendation.description}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Detailed Analysis */}
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
+                      {isWaitTimeMetric(metricId) ? 'Detailed Wait Time Analysis' : 'Detailed Department Metrics'}
+                    </h3>
+                    {isWaitTimeMetric(metricId) ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                              Peak Hours
+                            </h4>
+                            <ul className="space-y-2">
+                              {waitTimeData
+                                .sort((a, b) => b.peak - a.peak)
+                                .slice(0, 3)
+                                .map((hour, index) => (
+                                  <li key={index} className="flex justify-between items-center">
+                                    <span className="text-gray-600 dark:text-gray-400">{hour.time}</span>
+                                    <span className="font-medium text-gray-900 dark:text-white">{hour.peak}m</span>
+                                  </li>
+                                ))}
+                            </ul>
+                          </div>
+                          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                              Department Analysis
+                            </h4>
+                            <ul className="space-y-2">
+                              {departmentData
+                                .sort((a, b) => parseFloat(b.avgWait) - parseFloat(a.avgWait))
+                                .slice(0, 3)
+                                .map((dept, index) => (
+                                  <li key={index} className="flex justify-between items-center">
+                                    <span className="text-gray-600 dark:text-gray-400">{dept.name}</span>
+                                    <span className="font-medium text-gray-900 dark:text-white">{dept.avgWait}</span>
+                                  </li>
+                                ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {departmentData.map((dept, index) => (
+                          <div key={index} className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3 last:border-0 last:pb-0">
+                            <div>
+                              <p className="font-medium text-gray-900 dark:text-white">{dept.name}</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                {isWaitTimeMetric(metricId) 
+                                  ? `Average wait: ${dept.avgWait}`
+                                  : `${dept.answered} answered, ${dept.abandoned} abandoned`}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-medium text-gray-900 dark:text-white">
+                                {isWaitTimeMetric(metricId) 
+                                  ? dept.avgWait
+                                  : dept.total}
+                              </p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                {isWaitTimeMetric(metricId) 
+                                  ? 'Average'
+                                  : 'Total calls'}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
           </div>
-        </Dialog.Panel>
-      </div>
-    </Dialog>
+        </div>
+      </Dialog>
+    </Transition>
   );
 };
 

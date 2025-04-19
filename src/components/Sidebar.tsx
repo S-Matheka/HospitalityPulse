@@ -3,13 +3,16 @@ import { Link, useLocation } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import {
   HomeIcon,
-  MapPinIcon,
-  LightBulbIcon,
+  BuildingOfficeIcon,
+  UserGroupIcon,
+  BellIcon,
   Cog6ToothIcon,
-  QuestionMarkCircleIcon,
-  BookOpenIcon,
-  ArrowRightOnRectangleIcon,
-  DocumentChartBarIcon,
+  ArrowLeftOnRectangleIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  PresentationChartLineIcon,
+  ClipboardDocumentListIcon,
+  MegaphoneIcon
 } from '@heroicons/react/24/outline';
 
 interface SidebarItemProps {
@@ -51,16 +54,34 @@ const Sidebar: React.FC = () => {
 
   const mainNavigation = [
     { label: 'Dashboard', icon: HomeIcon, to: '/' },
-    { label: 'Locations', icon: MapPinIcon, to: '/locations' },
-    { label: 'Pulse Queries', icon: LightBulbIcon, to: '/pulse' },
-    { label: 'Reports', icon: DocumentChartBarIcon, to: '/reports' },
+    { label: 'Locations', icon: BuildingOfficeIcon, to: '/locations' },
+    { 
+      label: 'Front Office', 
+      icon: BellIcon, 
+      to: '/front-office',
+      description: 'Check-in, reservations, and VIP alerts'
+    },
+    { 
+      label: 'Housekeeping', 
+      icon: UserGroupIcon, 
+      to: '/housekeeping',
+      description: 'Room service and cleanliness monitoring'
+    },
+    { 
+      label: 'Marketing', 
+      icon: MegaphoneIcon, 
+      to: '/marketing',
+      description: 'Campaign performance and social media'
+    },
+    { label: 'Reports', icon: ClipboardDocumentListIcon, to: '/reports' },
+    { label: 'Pulse Queries', icon: PresentationChartLineIcon, to: '/pulse' },
     { label: 'Settings', icon: Cog6ToothIcon, to: '/settings' }
   ];
 
   const secondaryNavigation = [
-    { label: 'Help Center', icon: QuestionMarkCircleIcon, to: '/help' },
-    { label: 'Resources', icon: BookOpenIcon, to: '/resources' },
-    { label: 'Sign Out', icon: ArrowRightOnRectangleIcon, to: '/logout' }
+    { label: 'Help Center', icon: ChevronDownIcon, to: '/help' },
+    { label: 'Resources', icon: ChevronUpIcon, to: '/resources' },
+    { label: 'Sign Out', icon: ArrowLeftOnRectangleIcon, to: '/logout' }
   ];
 
   const handleSignOut = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -74,15 +95,21 @@ const Sidebar: React.FC = () => {
       <div className="flex-1 overflow-y-auto px-3 py-4">
         <nav className="space-y-1">
           {mainNavigation.map((item) => (
-            <SidebarItem
-              key={item.to}
-              icon={item.icon}
-              label={item.label}
-              to={item.to}
-              isActive={location.pathname === item.to || 
-                        (item.to === '/' && location.pathname === '/') ||
-                        (item.to === '/locations' && location.pathname.startsWith('/location/'))}
-            />
+            <div key={item.to} className="space-y-1">
+              <SidebarItem
+                icon={item.icon}
+                label={item.label}
+                to={item.to}
+                isActive={location.pathname === item.to || 
+                          (item.to === '/' && location.pathname === '/') ||
+                          (item.to === '/locations' && location.pathname.startsWith('/location/'))}
+              />
+              {item.description && location.pathname === item.to && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 ml-8 mb-2">
+                  {item.description}
+                </p>
+              )}
+            </div>
           ))}
         </nav>
 
