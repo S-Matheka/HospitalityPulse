@@ -2,15 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   PhoneIcon,
-  CalendarIcon,
-  ClockIcon,
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
-  ChatBubbleLeftRightIcon,
-  UserIcon,
   BuildingOfficeIcon,
-  BellAlertIcon,
-  ChartBarIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon } from '@heroicons/react/24/solid';
 

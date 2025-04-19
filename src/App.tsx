@@ -11,19 +11,38 @@ import Login from './pages/Login';
 import { ThemeProvider } from './context/ThemeContext';
 import { UserProvider, useUser } from './context/UserContext';
 
+const LoadingSpinner = () => (
+  <div className="fixed inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+  </div>
+);
+
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useUser();
-  return user?.isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+  const { user, isLoading, checkAuth } = useUser();
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  const isAuthenticated = user?.isAuthenticated && checkAuth();
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
 const AppRoutes: React.FC = () => {
-  const { user } = useUser();
+  const { user, isLoading, checkAuth } = useUser();
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  const isAuthenticated = user?.isAuthenticated && checkAuth();
 
   return (
     <Routes>
       <Route path="/login" element={
-        user?.isAuthenticated ? <Navigate to="/" /> : <Login />
+        isAuthenticated ? <Navigate to="/" /> : <Login />
       } />
+      
       <Route path="/" element={
         <ProtectedRoute>
           <Layout>
@@ -31,6 +50,7 @@ const AppRoutes: React.FC = () => {
           </Layout>
         </ProtectedRoute>
       } />
+      
       <Route path="/locations" element={
         <ProtectedRoute>
           <Layout>
@@ -38,6 +58,7 @@ const AppRoutes: React.FC = () => {
           </Layout>
         </ProtectedRoute>
       } />
+      
       <Route path="/location/:id" element={
         <ProtectedRoute>
           <Layout>
@@ -45,6 +66,7 @@ const AppRoutes: React.FC = () => {
           </Layout>
         </ProtectedRoute>
       } />
+      
       <Route path="/front-office" element={
         <ProtectedRoute>
           <Layout>
@@ -52,6 +74,7 @@ const AppRoutes: React.FC = () => {
           </Layout>
         </ProtectedRoute>
       } />
+      
       <Route path="/housekeeping" element={
         <ProtectedRoute>
           <Layout>
@@ -59,6 +82,7 @@ const AppRoutes: React.FC = () => {
           </Layout>
         </ProtectedRoute>
       } />
+      
       <Route path="/marketing" element={
         <ProtectedRoute>
           <Layout>
@@ -66,7 +90,8 @@ const AppRoutes: React.FC = () => {
           </Layout>
         </ProtectedRoute>
       } />
-      <Route path="*" element={<Navigate to="/" />} />
+      
+      <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} />} />
     </Routes>
   );
 };

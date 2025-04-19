@@ -1,83 +1,15 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import {
-  PhoneIcon,
-  UserGroupIcon,
-  CalendarIcon,
-  ClockIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  ChatBubbleLeftRightIcon,
-  UserIcon,
-  BuildingOfficeIcon,
-  BellAlertIcon,
-  ChartBarIcon,
-  ExclamationTriangleIcon,
-} from '@heroicons/react/24/outline';
-import { StarIcon } from '@heroicons/react/24/solid';
+import { PhoneIcon } from '@heroicons/react/24/outline';
 import CallReviewSection from '../components/CallReviewSection';
-import CallDetailsModal from '../components/CallDetailsModal';
 import CallMetricsDrilldown from '../components/CallMetricsDrilldown';
 import StaffIssuesMonitor from '../components/StaffIssuesMonitor';
-import StaffIssueDetail from '../components/StaffIssueDetail';
 import ReputationOverview from '../components/ReputationOverview';
 import PulseComparison from '../components/PulseComparison';
 import OperationalRiskFeed from '../components/OperationalRiskFeed';
 import ComplianceAlerts from '../components/ComplianceAlerts';
 import EscalatingRiskPatterns from '../components/EscalatingRiskPatterns';
-import TrendAlerts from '../components/TrendAlerts';
-import { StatCard } from '../types/metrics';
 
 type MetricId = 'total-calls' | 'answered-calls' | 'abandoned-calls' | 'wait-time';
-
-interface CallTranscriptLine {
-  timestamp: string;
-  speaker: "Agent" | "Guest";
-  text: string;
-}
-
-interface CallMetrics {
-  totalCalls: number;
-  answeredCalls: number;
-  abandonedCalls: number;
-  averageWaitTime: string;
-  peakWaitTime: string;
-  date: string;
-  departmentBreakdown: {
-    [key: string]: {
-      total: number;
-      answered: number;
-      abandoned: number;
-      avgWait: string;
-      commonTopics?: string[];
-    };
-  };
-}
-
-interface CallData {
-  customerId: string;
-  customerName: string;
-  phoneNumber: string;
-  duration: string;
-  summary: string;
-  recordingUrl?: string;
-  transcriptUrl?: string;
-  shouldAnonymize?: boolean;
-  transcript?: CallTranscriptLine[];
-  sentiment?: {
-    overall: number;
-    breakdown: {
-      positive: number;
-      neutral: number;
-      negative: number;
-    };
-  };
-  topics?: string[];
-  agent?: string;
-  reasonForReview?: string;
-  reasonSeverity?: 'warning' | 'negative' | 'positive';
-  isCrmVerified?: boolean;
-}
 
 // Mock data for the dashboard
 const kpiData = {
@@ -172,14 +104,14 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-8 p-6">
-      {/* Greeting Header */}
+      {/* Row 1: Greeting Header */}
       <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           {`Good Morning, John. Welcome back.`}
         </h1>
       </div>
 
-      {/* Top KPI Cards */}
+      {/* Row 1: KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Calls Card */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors">
@@ -255,7 +187,7 @@ const Dashboard: React.FC = () => {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <ClockIcon className="h-6 w-6 text-yellow-500" />
+              <PhoneIcon className="h-6 w-6 text-yellow-500" />
               <h3 className="text-gray-500 dark:text-gray-400 font-medium">Average Wait Time</h3>
             </div>
           </div>
@@ -274,32 +206,12 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Guest Sentiment and Revenue Impact */}
+      {/* Row 2: Operational Risk + Campaign ROI */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Guest Sentiment */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Guest Sentiment
-          </h2>
-          <div className="space-y-4">
-            {revenueImpact.map((item, index) => (
-              <div key={index} className="flex items-start justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                <div>
-                  <h3 className="font-medium text-gray-900 dark:text-white">{item.issue}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{item.description}</p>
-                  <div className="mt-1 flex items-center gap-2 text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">Mentions: {item.mentions}</span>
-                    <span className={item.impact.startsWith('+') ? 'text-green-500' : 'text-red-500'}>
-                      {item.impact}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <OperationalRiskFeed />
         </div>
 
-        {/* Revenue Impact */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Revenue Impact & Campaign ROI
@@ -323,43 +235,37 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Call Review Section */}
+      {/* Row 3: Reputation + Comparison */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <ReputationOverview />
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <PulseComparison />
+        </div>
+      </div>
+
+      {/* Row 4: Call Review Protocol */}
       <div className="w-full">
         <CallReviewSection />
       </div>
 
-      {/* Main Content Area */}
+      {/* Row 5: Staff & Compliance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column */}
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Operational Risk Feed
-            </h2>
-            <OperationalRiskFeed />
-          </div>
-          <div>
-            <StaffIssuesMonitor />
-          </div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <StaffIssuesMonitor />
         </div>
 
-        {/* Right Column */}
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Pulse Comparison
-            </h2>
-            <PulseComparison />
-          </div>
-          <div>
-            <ReputationOverview />
-          </div>
-          <div>
-            <ComplianceAlerts />
-          </div>
-          <div>
-            <EscalatingRiskPatterns />
-          </div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <ComplianceAlerts />
+        </div>
+      </div>
+
+      {/* Row 6: Escalating Risk Patterns */}
+      <div className="w-full">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <EscalatingRiskPatterns />
         </div>
       </div>
 

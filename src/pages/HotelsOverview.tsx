@@ -1,19 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BuildingOfficeIcon,
   PhoneIcon,
   StarIcon,
-  ExclamationTriangleIcon,
   ClockIcon,
-  ChevronRightIcon,
-  CalendarIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  ChatBubbleLeftRightIcon,
-  UserIcon,
-  BellAlertIcon,
-  ChartBarIcon,
+  ChevronRightIcon
 } from '@heroicons/react/24/outline';
 
 // Mock data for hotels

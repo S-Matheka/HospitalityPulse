@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
-  PhoneIcon,
-  CalendarIcon,
   ClockIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  ChatBubbleLeftRightIcon,
-  UserIcon,
+  ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
-import { StarIcon } from '@heroicons/react/24/solid';
 
 interface CleaningTask {
   id: string;

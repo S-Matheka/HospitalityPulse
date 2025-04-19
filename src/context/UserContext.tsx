@@ -6,6 +6,7 @@ interface User {
   role: string;
   isAuthenticated: boolean;
   firstName: string;
+  lastLoginAt?: number;
 }
 
 interface UserContextType {
@@ -13,28 +14,60 @@ interface UserContextType {
   login: (email: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
+  checkAuth: () => boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
+const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading state
+
+  const checkAuth = (): boolean => {
+    const savedUser = localStorage.getItem('user');
+    if (!savedUser) return false;
+
+    try {
+      const parsedUser = JSON.parse(savedUser);
+      if (!parsedUser || !parsedUser.isAuthenticated || !parsedUser.lastLoginAt) {
+        localStorage.removeItem('user');
+        return false;
+      }
+
+      // Check if the session has expired
+      const now = Date.now();
+      const sessionExpired = now - parsedUser.lastLoginAt > SESSION_DURATION;
+
+      if (sessionExpired) {
+        localStorage.removeItem('user');
+        setUser(null);
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      localStorage.removeItem('user');
+      return false;
+    }
+  };
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      try {
-        const parsedUser = JSON.parse(savedUser);
-        if (parsedUser && parsedUser.isAuthenticated) {
+    const initializeAuth = () => {
+      const savedUser = localStorage.getItem('user');
+      if (savedUser && checkAuth()) {
+        try {
+          const parsedUser = JSON.parse(savedUser);
           setUser(parsedUser);
-        } else {
+        } catch (e) {
           localStorage.removeItem('user');
         }
-      } catch (e) {
-        localStorage.removeItem('user');
       }
-    }
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email: string): Promise<boolean> => {
@@ -47,7 +80,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         name: 'Admin User',
         role: 'admin',
         isAuthenticated: true,
-        firstName: 'Admin'
+        firstName: 'Admin',
+        lastLoginAt: Date.now()
       };
       setUser(newUser);
       localStorage.setItem('user', JSON.stringify(newUser));
@@ -65,7 +99,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <UserContext.Provider value={{ user, login, logout, isLoading }}>
+    <UserContext.Provider value={{ user, login, logout, isLoading, checkAuth }}>
       {children}
     </UserContext.Provider>
   );

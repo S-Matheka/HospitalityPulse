@@ -137,11 +137,22 @@ const locationStaffIssues: Record<string, StaffIssue[]> = {
       description: 'Guests reporting extended wait times at check-in',
       source: 'feedback',
       severity: 'high',
+      status: 'open',
       date: '2023-06-15',
-      metrics: {
-        value: '15 minutes',
-        trend: 'increase'
-      },
+      time: '14:30',
+      agent: 'John Smith',
+      department: 'Front Desk',
+      impact: 'Significant impact on guest satisfaction and check-in flow',
+      trend: 'worsening',
+      recommendations: [
+        {
+          id: 'rec1',
+          title: 'Implement Express Check-in',
+          description: 'Deploy mobile check-in solution for loyalty members',
+          priority: 'high',
+          status: 'pending'
+        }
+      ],
       actions: ['Review staffing levels', 'Implement express check-in system']
     },
     {
@@ -150,12 +161,23 @@ const locationStaffIssues: Record<string, StaffIssue[]> = {
       title: 'Room Turnover Delays',
       description: 'Delays in preparing rooms for new guests',
       source: 'operations',
-      severity: 'moderate',
+      severity: 'medium',
+      status: 'in-progress',
       date: '2023-06-14',
-      metrics: {
-        value: '45 minutes',
-        trend: 'decrease'
-      },
+      time: '11:15',
+      agent: 'Maria Garcia',
+      department: 'Housekeeping',
+      impact: 'Affecting room availability and check-in times',
+      trend: 'stable',
+      recommendations: [
+        {
+          id: 'rec2',
+          title: 'Optimize Cleaning Schedule',
+          description: 'Implement new room assignment algorithm',
+          priority: 'medium',
+          status: 'pending'
+        }
+      ],
       actions: ['Optimize cleaning schedule', 'Add support staff']
     }
   ],
@@ -167,11 +189,22 @@ const locationStaffIssues: Record<string, StaffIssue[]> = {
       description: 'Multiple rooms reporting AC problems',
       source: 'system',
       severity: 'high',
+      status: 'open',
       date: '2023-06-15',
-      metrics: {
-        value: '8 rooms',
-        trend: 'increase'
-      },
+      time: '09:45',
+      agent: 'Mike Johnson',
+      department: 'Maintenance',
+      impact: 'Guest comfort severely affected in multiple rooms',
+      trend: 'worsening',
+      recommendations: [
+        {
+          id: 'rec3',
+          title: 'Emergency Maintenance',
+          description: 'Schedule immediate inspection and repairs',
+          priority: 'high',
+          status: 'pending'
+        }
+      ],
       actions: ['Schedule emergency maintenance', 'Order replacement parts']
     },
     {
@@ -180,12 +213,23 @@ const locationStaffIssues: Record<string, StaffIssue[]> = {
       title: 'Room Service Delays',
       description: 'Extended wait times for room service orders',
       source: 'feedback',
-      severity: 'moderate',
+      severity: 'medium',
+      status: 'in-progress',
       date: '2023-06-13',
-      metrics: {
-        value: '45 minutes',
-        trend: 'increase'
-      },
+      time: '16:20',
+      agent: 'Sarah Lee',
+      department: 'Food Service',
+      impact: 'Affecting guest dining experience and satisfaction',
+      trend: 'stable',
+      recommendations: [
+        {
+          id: 'rec4',
+          title: 'Service Optimization',
+          description: 'Streamline kitchen workflow and delivery process',
+          priority: 'medium',
+          status: 'pending'
+        }
+      ],
       actions: ['Review kitchen workflow', 'Add delivery staff']
     }
   ],
@@ -196,12 +240,23 @@ const locationStaffIssues: Record<string, StaffIssue[]> = {
       title: 'Spa Booking System Issues',
       description: 'New booking system causing delays in spa appointment scheduling',
       source: 'system',
-      severity: 'moderate',
+      severity: 'medium',
+      status: 'in-progress',
       date: '2023-06-15',
-      metrics: {
-        value: '15 minutes',
-        trend: 'decrease'
-      },
+      time: '10:30',
+      agent: 'Lisa Chen',
+      department: 'Spa',
+      impact: 'Affecting spa operations and guest scheduling',
+      trend: 'improving',
+      recommendations: [
+        {
+          id: 'rec5',
+          title: 'System Training',
+          description: 'Comprehensive staff training on new booking system',
+          priority: 'medium',
+          status: 'pending'
+        }
+      ],
       actions: ['Staff training on new system', 'System optimization']
     },
     {
@@ -210,12 +265,23 @@ const locationStaffIssues: Record<string, StaffIssue[]> = {
       title: 'Premium Room Turnover',
       description: 'Delays in premium suite preparation affecting VIP check-ins',
       source: 'operations',
-      severity: 'moderate',
+      severity: 'medium',
+      status: 'open',
       date: '2023-06-14',
-      metrics: {
-        value: '35 minutes',
-        trend: 'decrease'
-      },
+      time: '13:45',
+      agent: 'David Kim',
+      department: 'Housekeeping',
+      impact: 'VIP guest experience affected by preparation delays',
+      trend: 'stable',
+      recommendations: [
+        {
+          id: 'rec6',
+          title: 'Premium Service Protocol',
+          description: 'Implement enhanced cleaning and preparation procedures',
+          priority: 'medium',
+          status: 'pending'
+        }
+      ],
       actions: ['Review premium room protocols', 'Additional training for staff']
     }
   ],
@@ -227,11 +293,22 @@ const locationStaffIssues: Record<string, StaffIssue[]> = {
       description: 'Understaffing in kitchen affecting room service delivery times',
       source: 'operations',
       severity: 'high',
+      status: 'open',
       date: '2023-06-15',
-      metrics: {
-        value: '45 minutes',
-        trend: 'increase'
-      },
+      time: '08:15',
+      agent: 'Robert Taylor',
+      department: 'Food Service',
+      impact: 'Significant delays in food service across all operations',
+      trend: 'worsening',
+      recommendations: [
+        {
+          id: 'rec7',
+          title: 'Staff Recruitment',
+          description: 'Accelerate hiring process for kitchen staff',
+          priority: 'high',
+          status: 'pending'
+        }
+      ],
       actions: ['Expedite hiring process', 'Temporary staff allocation']
     },
     {
@@ -240,27 +317,24 @@ const locationStaffIssues: Record<string, StaffIssue[]> = {
       title: 'Pool Maintenance Required',
       description: 'Regular maintenance schedule disrupted due to equipment issues',
       source: 'system',
-      severity: 'moderate',
+      severity: 'medium',
+      status: 'in-progress',
       date: '2023-06-14',
-      metrics: {
-        value: '2 days',
-        trend: 'increase'
-      },
+      time: '15:30',
+      agent: 'James Wilson',
+      department: 'Maintenance',
+      impact: 'Pool facilities temporarily affected',
+      trend: 'stable',
+      recommendations: [
+        {
+          id: 'rec8',
+          title: 'Maintenance Schedule',
+          description: 'Implement new preventive maintenance protocol',
+          priority: 'medium',
+          status: 'pending'
+        }
+      ],
       actions: ['Schedule emergency maintenance', 'Guest communication plan']
-    },
-    {
-      id: '9',
-      category: 'frontDesk',
-      title: 'Check-out Process Delays',
-      description: 'New payment system causing delays during peak check-out times',
-      source: 'feedback',
-      severity: 'moderate',
-      date: '2023-06-13',
-      metrics: {
-        value: '12 minutes',
-        trend: 'decrease'
-      },
-      actions: ['Staff training on new system', 'Process optimization']
     }
   ]
 };

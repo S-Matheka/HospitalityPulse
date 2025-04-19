@@ -7,22 +7,26 @@ import {
 import StaffIssueDetail from './StaffIssueDetail';
 
 export interface StaffIssue {
-  id: string | number;
+  id: string;
   category: 'frontDesk' | 'housekeeping' | 'foodService' | 'maintenance' | 'spa';
   title: string;
   description: string;
   source: 'operations' | 'feedback' | 'system' | 'staff';
-  severity: 'escalating' | 'high' | 'moderate' | 'resolved';
-  timestamp?: string;
-  date?: string;
-  metrics?: {
-    value: string;
-    trend?: 'increase' | 'decrease';
-  };
-  action?: {
-    text: string;
-    link: string;
-  };
+  severity: 'low' | 'medium' | 'high';
+  status: 'open' | 'in-progress' | 'resolved';
+  date: string;
+  time: string;
+  agent: string;
+  department: string;
+  impact: string;
+  trend: 'improving' | 'stable' | 'worsening';
+  recommendations: Array<{
+    id: string;
+    title: string;
+    description: string;
+    priority: 'low' | 'medium' | 'high';
+    status: 'pending' | 'implemented';
+  }>;
   actions?: string[];
 }
 
@@ -32,13 +36,10 @@ interface StaffIssuesMonitorProps {
 
 const getSeverityIcon = (severity: string) => {
   switch (severity) {
-    case 'escalating':
     case 'high':
       return <ExclamationTriangleIcon className="h-4 w-4" />;
-    case 'moderate':
     case 'medium':
       return <ExclamationTriangleIcon className="h-4 w-4" />;
-    case 'resolved':
     case 'low':
       return <CheckCircleIcon className="h-4 w-4" />;
     default:
@@ -48,13 +49,10 @@ const getSeverityIcon = (severity: string) => {
 
 const getSeverityColor = (severity: string) => {
   switch (severity) {
-    case 'escalating':
     case 'high':
       return 'text-red-500 dark:text-red-400';
-    case 'moderate':
     case 'medium':
       return 'text-yellow-500 dark:text-yellow-400';
-    case 'resolved':
     case 'low':
       return 'text-green-500 dark:text-green-400';
     default:
@@ -66,87 +64,78 @@ const getSeverityColor = (severity: string) => {
 const defaultStaffIssues: StaffIssue[] = [
   {
     id: '1',
-    category: 'housekeeping',
-    title: 'Room Turnover Delays',
-    description: '12 rooms pending cleanup, affecting check-in availability. Average delay: 45 minutes.',
-    source: 'operations',
+    category: 'frontDesk',
+    title: 'Check-in Process Delays',
+    description: 'Multiple guests experiencing longer than usual check-in times during peak hours.',
+    source: 'feedback',
     severity: 'high',
-    timestamp: 'Now',
-    metrics: {
-      value: '12 rooms',
-      trend: 'increase'
-    },
-    action: {
-      text: 'View housekeeping schedule',
-      link: '/staffing/housekeeping'
-    }
+    status: 'open',
+    date: '2024-03-20',
+    time: '14:30',
+    agent: 'Sarah Johnson',
+    department: 'Front Desk',
+    impact: 'Affecting guest satisfaction scores and creating lobby congestion',
+    trend: 'worsening',
+    recommendations: [
+      {
+        id: 'rec1',
+        title: 'Implement Express Check-in',
+        description: 'Deploy mobile check-in solution for loyalty members',
+        priority: 'high',
+        status: 'pending'
+      }
+    ],
+    actions: ['Review staffing levels', 'Analyze peak check-in times']
   },
   {
     id: '2',
-    category: 'foodService',
-    title: 'Breakfast Service Staff Shortage',
-    description: 'Only 4 of 6 required staff present. Affecting service time and buffet replenishment.',
+    category: 'housekeeping',
+    title: 'Room Turnover Efficiency',
+    description: 'Room preparation times exceeding standard metrics by 20%',
     source: 'operations',
-    severity: 'escalating',
-    timestamp: '15 minutes ago',
-    metrics: {
-      value: '67% staffed',
-      trend: 'decrease'
-    },
-    action: {
-      text: 'Adjust staff allocation',
-      link: '/staffing/food-service'
-    }
+    severity: 'medium',
+    status: 'in-progress',
+    date: '2024-03-19',
+    time: '11:15',
+    agent: 'Michael Chen',
+    department: 'Housekeeping',
+    impact: 'Delayed check-ins and increased operational costs',
+    trend: 'stable',
+    recommendations: [
+      {
+        id: 'rec2',
+        title: 'Optimize Cleaning Routes',
+        description: 'Implement new room assignment algorithm',
+        priority: 'medium',
+        status: 'pending'
+      }
+    ],
+    actions: ['Conduct time-motion study', 'Review cleaning protocols']
   },
   {
     id: '3',
-    category: 'frontDesk',
-    title: 'Check-in Queue Management',
-    description: 'Average check-in time exceeding 10 minutes during peak hours (3-5 PM)',
-    source: 'feedback',
-    severity: 'moderate',
-    timestamp: '1 hour ago',
-    metrics: {
-      value: '10+ min wait',
-      trend: 'increase'
-    },
-    action: {
-      text: 'Review peak hour staffing',
-      link: '/operations/front-desk'
-    }
-  },
-  {
-    id: '4',
-    category: 'maintenance',
-    title: 'AC System Response Time',
-    description: 'Maintenance team response time for AC issues averaging 45 minutes. 3 rooms affected.',
+    category: 'foodService',
+    title: 'Kitchen Equipment Maintenance',
+    description: 'Regular maintenance checks being missed for key kitchen equipment',
     source: 'system',
-    severity: 'moderate',
-    timestamp: '2 hours ago',
-    metrics: {
-      value: '45 min response',
-      trend: 'increase'
-    },
-    action: {
-      text: 'View maintenance log',
-      link: '/maintenance/logs'
-    }
-  },
-  {
-    id: '5',
-    category: 'spa',
-    title: 'Spa Booking Conflicts',
-    description: 'Double bookings reported for 2 treatment rooms. Weekend schedule affected.',
-    source: 'staff',
-    severity: 'moderate',
-    timestamp: '3 hours ago',
-    metrics: {
-      value: '2 conflicts',
-    },
-    action: {
-      text: 'Review booking system',
-      link: '/spa/bookings'
-    }
+    severity: 'low',
+    status: 'resolved',
+    date: '2024-03-18',
+    time: '09:45',
+    agent: 'David Martinez',
+    department: 'Food Service',
+    impact: 'Potential for equipment failure and service disruption',
+    trend: 'improving',
+    recommendations: [
+      {
+        id: 'rec3',
+        title: 'Digital Maintenance Tracking',
+        description: 'Implement automated maintenance scheduling system',
+        priority: 'low',
+        status: 'implemented'
+      }
+    ],
+    actions: ['Create maintenance schedule', 'Train staff on equipment checks']
   }
 ];
 
@@ -181,7 +170,7 @@ const StaffIssuesMonitor: React.FC<StaffIssuesMonitorProps> = ({ issues = defaul
               </span>
             </div>
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              {issue.timestamp || issue.date}
+              {issue.date}
             </span>
           </div>
           
@@ -189,33 +178,16 @@ const StaffIssuesMonitor: React.FC<StaffIssuesMonitorProps> = ({ issues = defaul
             {issue.description}
           </p>
           
-          {issue.metrics && (
+          {issue.impact && (
             <div className="mb-2">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                {issue.metrics.value}
-                {issue.metrics.trend && (
-                  <span className={`ml-1 ${
-                    issue.metrics.trend === 'increase' 
-                      ? 'text-red-500 dark:text-red-400' 
-                      : 'text-green-500 dark:text-green-400'
-                  }`}>
-                    {issue.metrics.trend === 'increase' ? '↑' : '↓'}
-                  </span>
-                )}
+                {issue.impact}
               </span>
             </div>
           )}
           
           <div className="flex items-center">
-            {issue.action ? (
-              <button 
-                onClick={(e) => handleActionClick(issue, e)}
-                className="group inline-flex items-center text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-              >
-                <span>{issue.action.text}</span>
-                <ChevronRightIcon className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </button>
-            ) : issue.actions && issue.actions.length > 0 ? (
+            {issue.actions && issue.actions.length > 0 ? (
               <button 
                 onClick={(e) => handleActionClick(issue, e)}
                 className="group inline-flex items-center text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
