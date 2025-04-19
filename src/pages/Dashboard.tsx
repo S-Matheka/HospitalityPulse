@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PhoneIcon } from '@heroicons/react/24/outline';
+import { useUser } from '../context/UserContext';
 import CallReviewSection from '../components/CallReviewSection';
 import CallMetricsDrilldown from '../components/CallMetricsDrilldown';
 import StaffIssuesMonitor from '../components/StaffIssuesMonitor';
@@ -88,6 +89,7 @@ const revenueImpact = [
 
 const Dashboard: React.FC = () => {
   const [selectedMetric, setSelectedMetric] = useState<MetricId | null>(null);
+  const { user } = useUser();
 
   const calculatePercentage = (value: number, total: number): string => {
     if (total === 0) return '0.0';
@@ -107,7 +109,7 @@ const Dashboard: React.FC = () => {
       {/* Row 1: Greeting Header */}
       <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          {`Good Morning, John. Welcome back.`}
+          {`Good Morning, ${user?.name}. Welcome back.`}
         </h1>
       </div>
 
